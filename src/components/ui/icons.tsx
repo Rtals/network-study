@@ -45,7 +45,8 @@ export const AlertTriangle = (p: IconProps) => (
 export const LogList = (p: IconProps) => (
   <Icon {...p} strokeWidth={2}><path d="M4 6h16M4 12h16M4 18h10" /></Icon>
 )
-export const X = (p: IconProps) => <Icon {...p}><path d="M6 6l12 12M18 6L6 18" /></Icon>
+export const Activity = (p: IconProps) => <Icon {...p}><path d="M3 12h4l3-8 4 16 3-8h4" /></Icon>
+export const X =(p: IconProps) => <Icon {...p}><path d="M6 6l12 12M18 6L6 18" /></Icon>
 export const BookOpen = (p: IconProps) => (
   <Icon {...p} strokeWidth={2}><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2z" /><path d="M22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z" /></Icon>
 )
@@ -60,4 +61,11 @@ export const Pause = ({ size = 16, ...rest }: IconProps) => (
     <rect x="6" y="5" width="4" height="14" rx="1" />
     <rect x="14" y="5" width="4" height="14" rx="1" />
   </svg>
+)
+/** 네 방향 화살표: 끌어서 이동 */
+export const Move = (p: IconProps) => (
+  <Icon {...p}><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" /></Icon>
+)
+export const Lightbulb = (p: IconProps) => (
+  <Icon {...p}><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" /></Icon>
 )

@@ -14,8 +14,9 @@ export function WeekOverview() {
   const starCount = week.steps.filter((s) => s.star).length
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <header className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-b border-line bg-surface px-8 py-2.5">
+    <div className="flex min-h-0 min-w-0 flex-1 p-3 pl-0">
+     <div className="card flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <header className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-b border-line px-8 py-2.5">
         <div className="flex items-center gap-2">
           <span className="font-mono text-[13px] text-muted">W{week.no}</span>
           <span className="font-bold">Week 개요</span>
@@ -23,7 +24,7 @@ export function WeekOverview() {
         {first && (
           <Link
             to={phasePath(week.id, first.id, 0)}
-            className="flex h-10 items-center gap-1.5 rounded-lg bg-accent px-4 text-[13px] font-bold text-white hover:bg-blue-800"
+            className="tool is-on"
           >
             {first.no}부터 시작
             <ChevronRight size={15} />
@@ -41,7 +42,7 @@ export function WeekOverview() {
               <h1 className="mt-1.5 mb-0 text-3xl leading-tight font-bold">{week.title}</h1>
             </div>
 
-            <div className="rounded-xl border border-line bg-surface px-6 py-5">
+            <div className="rounded-xl border border-line bg-card px-6 py-5">
               <p className="m-0 mb-2 text-xs font-bold text-accent">오늘의 질문</p>
               <p className="m-0 text-lg leading-relaxed font-medium">{week.question}</p>
             </div>
@@ -63,7 +64,7 @@ export function WeekOverview() {
                     <li key={s.id}>
                       <Link
                         to={phasePath(week.id, s.id, 0)}
-                        className="flex h-full flex-col gap-2 rounded-xl border border-line bg-surface p-3.5 text-ink hover:border-accent"
+                        className="flex h-full flex-col gap-2 rounded-xl border-[1.3px] border-line-strong bg-card p-3.5 text-ink transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-0.5 hover:border-ink-2 hover:shadow-[0_2px_0_var(--color-ink-2)]"
                       >
                         <span className="flex items-center gap-1.5">
                           <span className="font-mono text-xs text-muted">{s.no}</span>
@@ -72,7 +73,7 @@ export function WeekOverview() {
                               ★
                             </span>
                           )}
-                          <span className="ml-auto rounded bg-zinc-100 px-1.5 py-px font-mono text-[11px] text-muted">
+                          <span className="tag ml-auto h-5 bg-sand px-2 text-[10.5px]">
                             {s.scene}
                           </span>
                         </span>
@@ -89,7 +90,7 @@ export function WeekOverview() {
           </div>
 
           <aside aria-label="학습 목표" className="flex max-w-full flex-[1_1_300px] flex-col gap-4">
-            <section className="rounded-xl border border-line bg-surface p-5">
+            <section className="rounded-xl border border-line bg-card p-5">
               <h2 className="m-0 mb-3 text-sm font-bold">학습 목표</h2>
               {week.objectives.length === 0 ? (
                 <p className="m-0 text-[13px] text-muted">강의자료의 Learning Objectives로 채울 예정입니다.</p>
@@ -104,6 +105,7 @@ export function WeekOverview() {
           </aside>
         </div>
       </div>
+     </div>
     </div>
   )
 }

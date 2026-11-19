@@ -58,7 +58,12 @@ export type Phase = {
   /** 오른쪽 패널 본문 */
   body: string
   keyPoint?: string
+  /** 흔한 오해 */
   pitfall?: string
+  /** 실무 신호 */
+  signal?: string
+  /** 이 Phase만 다른 장면으로 그릴 때 (없으면 Step.scene) */
+  scene?: SceneType
   /** 장면 유형별 상태 스냅샷 */
   state: unknown
 }

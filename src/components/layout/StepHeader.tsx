@@ -20,48 +20,31 @@ export function StepHeader({ week, step, onOpenPanel }: Props) {
   const setMode = useStudyStore((s) => s.setMode)
 
   return (
-    <header className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-b border-line bg-surface px-6 py-2.5">
-      <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
-        <Link to={`/${week.id}`} className="text-muted hover:text-ink">
-          W{week.no}
-        </Link>
-        <span aria-hidden="true" className="text-faint">
-          ›
-        </span>
-        <span className="font-mono text-[13px] text-muted">{step.no}</span>
-        <h1 className="m-0 text-sm font-bold">{step.title}</h1>
-        {step.star && (
-          <span className="rounded border border-orange-200 bg-orange-50 px-1.5 py-px text-[11px] text-star">
-            ★ 시험 우선
-          </span>
-        )}
+    <header className="flex flex-wrap items-end justify-between gap-3 px-5 pt-4 pb-1">
+      <div className="min-w-0">
+        <p className="m-0 flex items-center gap-1.5 text-[11.5px] font-semibold text-muted">
+          <Link to={`/${week.id}`} className="hover:text-ink hover:underline">
+            Week {week.no} · {week.title}
+          </Link>
+          <span aria-hidden="true">/</span>
+          <span>Step {step.no}</span>
+        </p>
+        <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
+          <h1 className="m-0 text-[24px] leading-tight font-extrabold tracking-[-0.015em]">{step.title}</h1>
+          {step.star && <span className="tag bg-sand">★ 시험 우선</span>}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         {step.sandbox && (
-          <div role="group" aria-label="모드" className="flex rounded-lg bg-zinc-100 p-[3px]">
-            {modes.map((m) => {
-              const active = mode === m.id
-              return (
-                <button
-                  key={m.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setMode(m.id)}
-                  className={`h-8 rounded-md px-3.5 text-[13px] ${
-                    active ? 'bg-surface font-bold text-ink shadow-sm' : 'text-muted hover:text-ink'
-                  }`}
-                >
-                  {m.label}
-                </button>
-              )
-            })}
+          <div role="group" aria-label="모드" className="flex gap-1.5">
+            {modes.map((m) => (
+              <button key={m.id} type="button" aria-pressed={mode === m.id} onClick={() => setMode(m.id)} className="tool">
+                {m.label}
+              </button>
+            ))}
           </div>
         )}
-        <button
-          type="button"
-          onClick={onOpenPanel}
-          className="flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] lg:hidden"
-        >
+        <button type="button" onClick={onOpenPanel} className="tool lg:hidden">
           <BookOpen size={15} />
           설명
         </button>

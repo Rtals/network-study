@@ -2,18 +2,46 @@
 
 /* UI 토큰. 프로토콜 색상은 src/theme.ts 한 곳에서 정의한다. */
 @theme {
-  --font-sans: "Noto Sans KR", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* 고정폭 글꼴 하나로 통일. 한글 글자는 Noto Sans KR로 채운다 */
+  --font-sans: "JetBrains Mono", "Noto Sans KR", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", "Noto Sans KR", ui-monospace, monospace;
 
-  --color-canvas: #f6f6f4;
-  --color-surface: #ffffff;
-  --color-line: #e4e4e0;
-  --color-ink: #18181b;
-  --color-muted: #52525b;
-  --color-faint: #a1a1aa;
-  --color-accent: #1d4ed8;
-  --color-accent-soft: #eef2ff;
-  --color-star: #b45309;
+  /* 따뜻한 종이색 바탕 + 잉크색 글자 */
+  --color-canvas: #f4ebe0;
+  --color-surface: #f9f2e8;
+  --color-card: #fbf7f1;
+  --color-stage: #faf3e9;
+  --color-line: #ddd3c5;
+  --color-line-soft: #e6ddd0;
+  --color-line-strong: #c6bbac;
+  --color-ink: #1d1b18;
+  --color-ink-2: #34302b;
+  --color-muted: #6f6961;
+  --color-faint: #8b847a;
+  --color-accent: #24521c;
+  --color-accent-soft: #cfe3b2;
+  --color-star: #b0582a;
+  --color-green: #cfe3b2;
+  --color-green-tile: #e8efd9;
+  --color-violet: #e7ddf5;
+  --color-violet-tile: #ebe3f1;
+  --color-sand: #f6e6c9;
+  --color-mint: #dff0de;
+  --color-rose-tile: #fbebe7;
+
+  /* zinc 회색 계열을 따뜻한 회색으로 바꿔 화면 전체 톤을 맞춘다 */
+  --color-zinc-50: #fbf7f1;
+  --color-zinc-100: #f3eadd;
+  --color-zinc-200: #e6ddd0;
+  --color-zinc-300: #ddd3c5;
+  --color-zinc-400: #b0a698;
+  --color-zinc-500: #8b847a;
+  --color-zinc-600: #6f6961;
+  --color-zinc-700: #5c564e;
+  --color-zinc-800: #34302b;
+  --color-zinc-900: #1d1b18;
+
+  --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 html,
@@ -27,5 +55,117 @@ body {
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "calt" 0, "liga" 0;
 }
+
+/* ---- 공통 부품 ---- */
+
+/* 도구 버튼: 잉크 테두리 + 아래로 단단한 그림자, 누르면 살짝 내려간다 */
+.tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1.3px solid var(--color-ink-2);
+  border-radius: 9px;
+  background: var(--color-card);
+  box-shadow: 0 1.5px 0 var(--color-ink-2);
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.1s;
+}
+.tool:hover:not(:disabled) {
+  background: #ffffff;
+}
+.tool:active:not(:disabled) {
+  box-shadow: 0 0.5px 0 var(--color-ink-2);
+  transform: translateY(1px);
+}
+.tool:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.tool[aria-pressed="true"],
+.tool.is-on {
+  background: var(--color-green);
+}
+.tool--icon {
+  width: 32px;
+  padding: 0;
+}
+
+/* 태그: 둥근 알약 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border: 1.3px solid var(--color-ink-2);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 #ffffff99, 0 1.5px 0 var(--color-ink-2);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 카드: 옅은 테두리 + 아주 부드러운 그림자 */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 #ffffffa6, 0 1px 0 #503c230f, 0 14px 30px -24px #503c2373;
+}
+
+/* 무대 위 설명 칩: 반투명 종이 + 왼쪽 색 막대 */
+.stage-chip {
+  position: relative;
+  display: flex;
+  padding: 6px 12px 7px 13px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 9px;
+  background: #fbf7f1eb;
+  box-shadow: 0 1px 0 #503c2314;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-ink);
+}
+.stage-chip::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--chip, #7fc278);
+}
+
+/* 오른쪽 설명: Phase가 바뀌면 내용이 차례로 미끄러져 들어온다 */
+.guide-in > * {
+  animation: guide-in 0.36s var(--ease-out-soft) both;
+}
+.guide-in > *:nth-child(2) { animation-delay: 0.04s; }
+.guide-in > *:nth-child(3) { animation-delay: 0.08s; }
+.guide-in > *:nth-child(4) { animation-delay: 0.12s; }
+.guide-in > *:nth-child(5) { animation-delay: 0.16s; }
+.guide-in > *:nth-child(n + 6) { animation-delay: 0.2s; }
+@keyframes guide-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .guide-in > * {
+    animation: none;
+  }
+}
+

@@ -13,6 +13,8 @@ export type SceneProps<S = unknown> = {
   phaseLabel: string
   mode: Mode
   speed: number
+  /** 바뀌면 이번 Phase의 애니메이션을 처음부터 다시 재생한다 (다시 보기 버튼) */
+  replay: number
   /** 직접 해보기 모드에서 이벤트 로그에 한 줄 추가 */
   onEvent: (message: string) => void
 }

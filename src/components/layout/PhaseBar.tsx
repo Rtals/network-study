@@ -10,132 +10,109 @@ type Props = {
   next?: StepRef
   onGo: (index: number) => void
   onTogglePlay: () => void
-  onRestart: () => void
+  /** 지금 Phase의 애니메이션 다시 보기 */
+  onReplay: () => void
 }
-
-const iconBtn =
-  'grid size-11 place-items-center rounded-lg border border-line bg-surface text-ink hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40'
 
 export function PhaseBar(props: Props) {
   const mode = useStudyStore((s) => s.mode)
   return mode === 'sandbox' ? <EventLogBar /> : <FollowBar {...props} />
 }
 
-function FollowBar({ step, phaseIndex, next, onGo, onTogglePlay, onRestart }: Props) {
+/** 타임라인: 번호 점 + 진행만큼 채워지는 선. 지금 Phase 점은 초록 + 단단한 그림자 */
+function FollowBar({ step, phaseIndex, next, onGo, onTogglePlay, onReplay }: Props) {
   const playing = useStudyStore((s) => s.playing)
   const speed = useStudyStore((s) => s.speed)
   const cycleSpeed = useStudyStore((s) => s.cycleSpeed)
   const count = step.phases.length
   const isLast = phaseIndex === count - 1
+  const progress = count > 1 ? phaseIndex / (count - 1) : 0
 
   return (
-    <footer aria-label="Phase 진행 바" className="border-t border-line bg-surface px-6 py-3">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            aria-label="이전 Phase"
-            className={iconBtn}
-            disabled={phaseIndex === 0}
-            onClick={() => onGo(phaseIndex - 1)}
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            type="button"
-            aria-label={playing ? '정지' : '자동재생'}
-            aria-pressed={playing}
-            onClick={onTogglePlay}
-            className="grid size-11 place-items-center rounded-lg bg-accent text-white hover:bg-blue-800"
-          >
-            {playing ? <Pause size={18} /> : <Play size={18} />}
-          </button>
-          {!isLast ? (
-            <button
-              type="button"
-              aria-label="다음 Phase"
-              className={iconBtn}
-              onClick={() => onGo(phaseIndex + 1)}
-            >
-              <ChevronRight size={18} />
-            </button>
-          ) : next ? (
-            <Link
-              to={phasePath(next.week.id, next.step.id, 0)}
-              className="flex h-11 items-center gap-1 rounded-lg border border-accent px-3 text-[13px] font-bold text-accent hover:bg-accent-soft"
-            >
-              다음 Step으로
-              <ChevronRight size={16} />
-            </Link>
-          ) : (
-            <span className="px-3 text-[13px] text-muted">마지막 Step</span>
-          )}
-        </div>
+    <footer aria-label="Phase 진행 바" className="px-5 pt-2 pb-3.5">
+      <div className="flex items-baseline justify-between">
+        <span className="text-[12.5px] font-bold">진행</span>
+        <span className="text-[11.5px] font-semibold text-muted" aria-live="polite">
+          {phaseIndex + 1} / {count}
+        </span>
+      </div>
 
-        <ol className="m-0 flex min-w-[280px] flex-1 list-none items-start p-0">
+      <div className="relative mt-1.5">
+        {/* 선: 첫 점 가운데 ~ 마지막 점 가운데 */}
+        <div className="absolute top-[13px] h-[1.3px] bg-zinc-400" style={{ left: `calc(100% / ${count} / 2)`, right: `calc(100% / ${count} / 2)` }}>
+          <span
+            className="absolute -inset-y-px left-0 bg-ink transition-[width] duration-700 ease-[cubic-bezier(.65,0,.35,1)]"
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+        <ol className="relative m-0 grid list-none p-0" style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
           {step.phases.map((p, i) => {
-            const reached = i <= phaseIndex
+            const done = i < phaseIndex
             const current = i === phaseIndex
             return (
-              <li key={i} className="flex flex-1 flex-col items-center gap-1">
-                <div className="flex w-full items-center">
-                  <span
-                    className={`h-0.5 flex-1 ${i === 0 ? 'invisible' : ''} ${reached ? 'bg-accent' : 'bg-zinc-300'}`}
-                  />
-                  <button
-                    type="button"
-                    aria-label={`Phase ${i + 1}: ${p.label}`}
-                    aria-current={current ? 'step' : undefined}
-                    onClick={() => onGo(i)}
-                    className="grid size-6 place-items-center rounded-full"
-                  >
-                    <span
-                      className={`block size-3 rounded-full border-2 ${
-                        reached ? 'border-accent bg-accent' : 'border-faint bg-surface'
-                      } ${current ? 'ring-4 ring-blue-100' : ''}`}
-                    />
-                  </button>
-                  <span
-                    className={`h-0.5 flex-1 ${i === count - 1 ? 'invisible' : ''} ${
-                      i < phaseIndex ? 'bg-accent' : 'bg-zinc-300'
-                    }`}
-                  />
-                </div>
-                <span
-                  className={`text-[11px] whitespace-nowrap ${
-                    current ? 'font-bold text-accent' : reached ? 'text-ink' : 'text-muted'
-                  }`}
+              <li key={i}>
+                <button
+                  type="button"
+                  aria-label={`Phase ${i + 1}: ${p.label}`}
+                  aria-current={current ? 'step' : undefined}
+                  onClick={() => onGo(i)}
+                  className="group flex w-full flex-col items-center px-0.5"
                 >
-                  {p.label}
-                </span>
+                  <span
+                    className={`grid size-[26px] place-items-center rounded-full text-[11.5px] font-bold transition-[background-color,transform] duration-300 ${
+                      current
+                        ? 'scale-[1.08] border-[1.5px] border-ink bg-green shadow-[1px_1.5px_0_var(--color-ink)]'
+                        : done
+                          ? 'border-[1.3px] border-ink-2 bg-green-tile group-hover:-translate-y-px'
+                          : 'border-[1.3px] border-zinc-600 bg-card group-hover:-translate-y-px group-hover:bg-white'
+                    }`}
+                  >
+                    {i + 1}
+                  </span>
+                  <span
+                    className={`mt-1 min-h-[2.6em] text-center text-[11px] leading-[1.3] ${
+                      current ? 'font-bold text-ink' : done ? 'text-ink-2' : 'text-muted'
+                    }`}
+                  >
+                    {p.label}
+                  </span>
+                </button>
               </li>
             )
           })}
         </ol>
+      </div>
 
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[13px] font-semibold" aria-live="polite">
-            {phaseIndex + 1} / {count}
-          </span>
-          <button
-            type="button"
-            aria-label={`재생 속도 ${speed}배, 눌러서 바꾸기`}
-            onClick={cycleSpeed}
-            className="h-8 min-w-11 rounded-md border border-line bg-surface px-2 font-mono text-xs hover:bg-zinc-50"
-          >
+      <div className="mt-1 flex flex-wrap items-center gap-2">
+        <button type="button" aria-label="이전 Phase" className="tool tool--icon" disabled={phaseIndex === 0} onClick={() => onGo(phaseIndex - 1)}>
+          <ChevronLeft size={16} />
+        </button>
+        <button type="button" aria-label={playing ? '정지' : '자동재생'} aria-pressed={playing} onClick={onTogglePlay} className="tool">
+          {playing ? <Pause size={14} /> : <Play size={14} />}
+          {playing ? '정지' : '재생'}
+        </button>
+        {!isLast ? (
+          <button type="button" aria-label="다음 Phase" className="tool tool--icon" onClick={() => onGo(phaseIndex + 1)}>
+            <ChevronRight size={16} />
+          </button>
+        ) : next ? (
+          <Link to={phasePath(next.week.id, next.step.id, 0)} className="tool is-on">
+            다음 Step으로
+            <ChevronRight size={15} />
+          </Link>
+        ) : (
+          <span className="px-2 text-[12px] text-muted">마지막 Step</span>
+        )}
+        <span className="ml-auto flex items-center gap-2">
+          <span className="hidden text-[10.5px] text-faint xl:inline">← → Phase · [ ] Step · Space 재생</span>
+          <button type="button" aria-label={`재생 속도 ${speed}배, 눌러서 바꾸기`} onClick={cycleSpeed} className="tool min-w-12">
             {speed}x
           </button>
-          <button
-            type="button"
-            aria-label="처음부터"
-            onClick={onRestart}
-            className="grid size-8 place-items-center rounded-md border border-line bg-surface text-muted hover:bg-zinc-50"
-          >
-            <RotateCcw size={15} />
+          <button type="button" aria-label="이 단계 다시 보기" title="이 단계 다시 보기" onClick={onReplay} className="tool tool--icon">
+            <RotateCcw size={14} />
           </button>
-        </div>
+        </span>
       </div>
-      <p className="mt-2 mb-0 text-[11px] text-muted">← → Phase · [ ] Step · Space 재생/정지</p>
     </footer>
   )
 }
@@ -147,7 +124,7 @@ function EventLogBar() {
   return (
     <footer
       aria-label="이벤트 로그"
-      className="flex min-h-[72px] flex-wrap items-center gap-x-3.5 gap-y-2 border-t border-line bg-surface px-6 py-3"
+      className="flex min-h-[72px] flex-wrap items-center gap-x-3.5 gap-y-2 px-5 pt-2 pb-3.5"
     >
       <span className="flex items-center gap-1.5 text-xs font-bold text-muted">
         <LogList size={15} />
@@ -164,7 +141,7 @@ function EventLogBar() {
                   →
                 </span>
               )}
-              <span className="rounded-full border border-line bg-zinc-50 px-2.5 py-1 font-mono text-xs">{e}</span>
+              <span className="tag bg-card font-medium">{e}</span>
             </li>
           ))}
         </ol>
@@ -173,7 +150,7 @@ function EventLogBar() {
         type="button"
         onClick={clearEvents}
         disabled={eventLog.length === 0}
-        className="ml-auto flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[13px] hover:bg-zinc-50 disabled:opacity-40"
+        className="tool ml-auto"
       >
         <RotateCcw size={14} />
         로그 지우기

@@ -32,10 +32,10 @@ function QuizItem({ item, index, total }: { item: Quiz; index: number; total: nu
             const isPicked = picked === c
             const correct = c === item.answer
             const tone = !isPicked
-              ? 'border-line hover:bg-zinc-50'
+              ? 'border-line-strong bg-card hover:border-ink-2'
               : correct
-                ? 'border-green-600 bg-green-50 text-green-800'
-                : 'border-red-600 bg-red-50 text-red-800'
+                ? 'border-[#9cbf86] bg-green-tile text-[#24521c]'
+                : 'border-[#ebbcb3] bg-rose-tile text-[#8f2a22]'
             return (
               <button
                 key={c}
@@ -60,13 +60,13 @@ function QuizItem({ item, index, total }: { item: Quiz; index: number; total: nu
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder="답을 적고 모범답안과 비교해 보세요"
-            className="w-full resize-y rounded-lg border border-zinc-300 px-3 py-2.5 text-[13.5px] leading-relaxed"
+            className="w-full resize-y rounded-lg border border-line-strong bg-card px-3 py-2.5 text-[12.8px] leading-relaxed"
           />
           {!revealed && (
             <button
               type="button"
               onClick={() => setRevealed(true)}
-              className="h-11 rounded-lg bg-accent text-sm font-bold text-white hover:bg-blue-800"
+              className="tool is-on h-10"
             >
               모범답안 보기
             </button>
@@ -75,7 +75,7 @@ function QuizItem({ item, index, total }: { item: Quiz; index: number; total: nu
       )}
 
       {showAnswer && (
-        <div className="flex flex-col gap-1.5 rounded-xl border border-line bg-zinc-50 p-3.5 text-[13.5px] leading-relaxed">
+        <div className="flex flex-col gap-1.5 rounded-[10px] border border-[#c9d6b3] bg-green-tile p-3.5 text-[12.8px] leading-relaxed">
           {item.choices && (
             <p className={`m-0 font-bold ${picked === item.answer ? 'text-green-700' : 'text-red-700'}`}>
               {picked === item.answer ? '정답' : `오답 · 정답은 ${item.answer}`}

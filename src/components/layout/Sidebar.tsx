@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router'
 import { weeks } from '../../content'
 import { parseLocation } from '../../lib/nav'
 import { useStudyStore } from '../../store/useStudyStore'
-import { ChevronDown, ChevronRight, ListChecks, Notebook, PanelLeft } from '../ui/icons'
+import { ChevronRight, ListChecks, Notebook, PanelLeft } from '../ui/icons'
 
 const footerLinks = [
   { to: '/quick-check', label: 'Quick Check 모아보기', Icon: ListChecks },
@@ -21,13 +21,13 @@ export function Sidebar() {
     return (
       <nav
         aria-label="Week 목록 (접힘)"
-        className="flex w-16 shrink-0 flex-col items-center gap-1.5 border-r border-line bg-surface py-3"
+        className="flex w-16 shrink-0 flex-col items-center gap-1.5 py-3"
       >
         <button
           type="button"
           aria-label="사이드바 펼치기"
           onClick={toggleSidebar}
-          className="mb-2 grid size-11 place-items-center rounded-lg border border-line text-muted hover:bg-zinc-50"
+          className="tool tool--icon mb-2"
         >
           <PanelLeft />
         </button>
@@ -40,7 +40,7 @@ export function Sidebar() {
               aria-label={`W${week.no} ${week.title}`}
               aria-current={current ? 'page' : undefined}
               className={`grid size-11 place-items-center rounded-lg font-mono text-xs ${
-                current ? 'bg-accent-soft font-bold text-accent' : 'text-muted hover:bg-zinc-50'
+                current ? 'border-[1.5px] border-ink-2 bg-card font-bold text-ink shadow-[0_1.5px_0_var(--color-ink-2)]' : 'text-muted hover:bg-zinc-100'
               }`}
             >
               W{week.no}
@@ -64,100 +64,112 @@ export function Sidebar() {
   }
 
   return (
-    <nav
-      aria-label="Week와 Step 목록"
-      className="flex w-[260px] shrink-0 flex-col border-r border-line bg-surface"
-    >
-      <div className="flex items-center justify-between border-b border-line px-4 pt-4 pb-3">
-        <Link to="/" className="text-[15px] font-bold text-ink">
-          네트워크 구조 및 설계
+    <nav aria-label="Week와 Step 목록" className="flex w-[260px] shrink-0 flex-col">
+      <div className="flex items-center justify-between px-5 pt-5 pb-3">
+        <Link to="/" className="flex items-center gap-2.5 text-[14px] leading-tight font-extrabold text-ink">
+          <Logo />
+          네트워크 구조
+          <br />및 설계
         </Link>
-        <button
-          type="button"
-          aria-label="사이드바 접기"
-          onClick={toggleSidebar}
-          className="grid size-8 place-items-center rounded-md border border-line text-muted hover:bg-zinc-50"
-        >
-          <PanelLeft />
+        <button type="button" aria-label="사이드바 접기" onClick={toggleSidebar} className="tool tool--icon">
+          <PanelLeft size={15} />
         </button>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-3">
         {weeks.map((week) => {
           const isCurrentWeek = week.id === loc.weekId
           const open = expandedWeeks[week.id] ?? isCurrentWeek
           const isOverview = isCurrentWeek && !loc.stepId
           return (
             <div key={week.id}>
-              <div
-                className={`flex items-center rounded-md ${isOverview ? 'bg-accent-soft text-accent' : 'text-ink'}`}
-              >
+              <div className="flex min-h-[34px] items-center">
                 <button
                   type="button"
                   aria-expanded={open}
                   aria-label={`W${week.no} Step 목록 ${open ? '접기' : '펼치기'}`}
                   onClick={() => setWeekExpanded(week.id, !open)}
-                  className="grid size-8 shrink-0 place-items-center rounded-md hover:bg-zinc-100"
+                  className="grid size-7 shrink-0 place-items-center rounded-md text-ink hover:bg-zinc-100"
                 >
-                  {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                  <ChevronRight size={13} className={`transition-transform duration-300 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? 'rotate-90' : ''}`} />
                 </button>
                 <Link
                   to={`/${week.id}`}
                   aria-current={isOverview ? 'page' : undefined}
-                  className={`flex min-w-0 flex-1 items-center gap-2 py-2 pr-2 text-[13px] ${
-                    isCurrentWeek ? 'font-bold' : ''
+                  className={`flex min-w-0 flex-1 items-center gap-2 rounded-md py-1.5 pr-1 pl-1 text-[13px] hover:underline ${
+                    isOverview ? 'font-extrabold' : 'font-semibold'
                   }`}
                 >
-                  <span className="font-mono text-xs">W{week.no}</span>
-                  <span className="min-w-0 flex-1 truncate">{week.title}</span>
+                  <span className="min-w-0 flex-1 truncate">
+                    W{week.no} {week.title}
+                  </span>
+                  <span className="shrink-0 text-[11px] font-semibold text-faint">{week.steps.length || ''}</span>
                 </Link>
               </div>
-              {open && (
-                <ul className="mb-1 ml-3 flex flex-col gap-px">
-                  {week.steps.length === 0 && (
-                    <li className="px-2 py-1.5 text-xs text-muted">Step 준비 중</li>
-                  )}
-                  {week.steps.map((step) => {
-                    const current = isCurrentWeek && step.id === loc.stepId
-                    return (
-                      <li key={step.id}>
-                        <Link
-                          to={`/${week.id}/${step.id}`}
-                          aria-current={current ? 'page' : undefined}
-                          className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-[12.5px] ${
-                            current ? 'bg-accent-soft font-bold text-accent' : 'text-zinc-800 hover:bg-zinc-50'
-                          }`}
-                        >
-                          <span className="w-8 shrink-0 font-mono text-[11px]">{step.no}</span>
-                          <span className="min-w-0 flex-1 truncate">{step.title}</span>
-                          {step.star && (
-                            <span className="text-[11px] text-star" aria-label="시험 중요">
-                              ★
-                            </span>
-                          )}
-                        </Link>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
+              {/* 펼침: 높이를 부드럽게 늘린다 (grid 0fr → 1fr) */}
+              <div
+                className={`grid transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.2,.7,.2,1)] ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+                aria-hidden={!open}
+                inert={!open}
+              >
+                <div className="min-h-0 overflow-hidden">
+                  <ul
+                    className={`relative mt-px mb-2 ml-[13px] flex flex-col transition-[opacity,transform] duration-300 before:absolute before:top-0 before:bottom-[15px] before:left-0 before:border-l before:border-zinc-400 ${
+                      open ? 'translate-y-0 opacity-100' : '-translate-y-1.5 opacity-0'
+                    }`}
+                  >
+                    {week.steps.length === 0 && <li className="py-1.5 pl-6 text-[12px] text-faint">Step 준비 중</li>}
+                    {week.steps.map((step) => {
+                      const current = isCurrentWeek && step.id === loc.stepId
+                      return (
+                        <li key={step.id} className="relative pl-6 before:absolute before:top-1/2 before:left-0 before:w-3.5 before:border-t before:border-zinc-400">
+                          <Link
+                            to={`/${week.id}/${step.id}`}
+                            aria-current={current ? 'page' : undefined}
+                            className={`-ml-2 flex min-h-[28px] items-center gap-2 rounded-lg border-[1.5px] px-2 py-0.5 text-[12.5px] transition-[background-color,border-color,box-shadow] duration-300 ${
+                              current
+                                ? 'border-ink-2 bg-card font-bold shadow-[0_1.5px_0_var(--color-ink-2)]'
+                                : 'border-transparent font-medium text-ink-2 hover:underline'
+                            }`}
+                          >
+                            <span className={`shrink-0 text-[10.5px] ${current ? 'text-ink' : 'text-faint'}`}>{step.no}</span>
+                            <span className="min-w-0 flex-1 truncate">{step.title}</span>
+                            {step.star && (
+                              <span className="text-[11px] text-star" aria-label="시험 중요">
+                                ★
+                              </span>
+                            )}
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              </div>
             </div>
           )
         })}
       </div>
 
-      <div className="flex flex-col gap-0.5 border-t border-line p-2">
+      <div className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5">
         {footerLinks.map(({ to, label, Icon }) => (
-          <Link
-            key={to}
-            to={to}
-            className="flex items-center gap-2 rounded-md px-2 py-2.5 text-[13px] text-ink hover:bg-zinc-50"
-          >
-            <Icon className="text-muted" />
+          <Link key={to} to={to} className="flex items-center gap-2 rounded-md px-2 py-2 text-[12.5px] font-medium text-ink-2 hover:underline">
+            <Icon size={15} className="text-muted" />
             {label}
           </Link>
         ))}
       </div>
     </nav>
+  )
+}
+
+/** 사이트 로고: 겹친 작은 블록 두 개 (무대 블록과 같은 스타일) */
+function Logo() {
+  return (
+    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+      <rect x="2" y="3" width="15" height="12" rx="3.5" fill="#cfe1f4" stroke="#1d1b18" strokeWidth="1.6" />
+      <rect x="12" y="14" width="15" height="12" rx="3.5" fill="#e2d7f1" stroke="#1d1b18" strokeWidth="1.6" />
+      <path d="M9.5 15v4.5h2.5" fill="none" stroke="#1d1b18" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }

@@ -15,6 +15,28 @@ export const protocolColors = {
 
 export type Protocol = keyof typeof protocolColors
 
+/** 짝 강조색 (예: seq = x ↔ ack = x+1). 프로토콜 색과 겹치지 않게 고른다. */
+export const highlightColors = {
+  a: '#be185d',
+  b: '#0369a1',
+} as const
+
+/**
+ * sequence 장면의 패킷 방향색. 같은 연결선 위에서 가는 패킷과 오는 패킷을 구별한다.
+ * forward: 왼쪽 기기 → 오른쪽 기기 (클라이언트 → 서버), backward: 그 반대 (응답).
+ */
+export const directionColors = {
+  /** 글자·선 색 */
+  forward: '#2f7a3d',
+  backward: '#b0582a',
+  /** 패킷 점 채움 색 (파스텔) */
+  forwardFill: '#9fd28f',
+  backwardFill: '#f3b47f',
+} as const
+
+/** 무대 바닥 (종이색) */
+export const STAGE_FLOOR = '#faf3e9'
+
 /** 애니메이션 기본 길이 (ms) */
 export const ANIM_MS = 600
 /** 자동재생 시 Phase 사이 쉼 (ms) */
