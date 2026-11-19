@@ -1,0 +1,67 @@
+# ===== Dependencies =====
+node_modules/
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+
+# ===== Build output (Vite) =====
+dist/
+dist-ssr/
+build/
+*.local
+
+# ===== Test / Coverage (Vitest) =====
+coverage/
+.vitest/
+
+# ===== Caches =====
+.vite/
+.cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# ===== Logs =====
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== Environment variables / Secrets =====
+.env
+.env.*
+!.env.example
+
+# ===== Vercel =====
+.vercel/
+
+# ===== Claude Code =====
+# 개인 설정(권한, 로컬 경로 등)은 올리지 않는다. CLAUDE.md와 .claude/settings.json은 커밋한다.
+.claude/settings.local.json
+CLAUDE.local.md
+
+# ===== 강의자료 원본 =====
+# 교수님 강의자료는 저작물이라 공개 저장소에 올리지 않는다.
+# 로컬의 docs/lectures/ 폴더에만 두고 Claude Code가 읽게 한다.
+# (비공개 저장소이고 올려도 된다는 확인을 받았다면 아래 두 줄을 지운다)
+docs/lectures/*
+!docs/lectures/.gitkeep
+
+# ===== Editors / IDE =====
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
