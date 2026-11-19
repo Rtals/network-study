@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* UI 토큰. 프로토콜 색상은 src/theme.ts 한 곳에서 정의한다. */
+@theme {
+  --font-sans: "Noto Sans KR", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-canvas: #f6f6f4;
+  --color-surface: #ffffff;
+  --color-line: #e4e4e0;
+  --color-ink: #18181b;
+  --color-muted: #52525b;
+  --color-faint: #a1a1aa;
+  --color-accent: #1d4ed8;
+  --color-accent-soft: #eef2ff;
+  --color-star: #b45309;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
