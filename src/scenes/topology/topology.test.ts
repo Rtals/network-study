@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { securityMap } from '../../content/w6/security-map'
 import { GAP_MS, LEAD_MS, READ_MS } from '../sequence/timeline'
-import { flowPoints, layoutNodes, overviewBox } from './layout'
+import { FADE_MS, flowKeyframes, flowPoints, layoutNodes, overviewBox } from './layout'
 import { beatMs, finalStep, HOP_MS, noteVisible, stepDelay, TAG_MS, TAGS_TAIL_MS, timelineMs } from './timeline'
 import { isTopologyState, type TopologyState } from './types'
 
@@ -88,5 +88,27 @@ describe('배치', () => {
     expect(pts).toHaveLength(4)
     // 나감(보임) → 네트워크 들어감(숨김) → 네트워크 나감(보임) → 서버 들어감(끝)
     expect(visible).toEqual([true, false, true, true])
+  })
+
+  it('블록에서 나올 때 선명해지고 들어갈 때 흐려진다: 중간 블록도 같은 짧은 페이드', () => {
+    const nodes = layoutNodes(phases[1].nodes)
+    const { pts, visible } = flowPoints(nodes, ['browser', 'network', 'server'])
+    const total = 2 * 650
+    const k = flowKeyframes(pts, visible, total)
+    const fade = FADE_MS / total
+    // 출발: 0에서 시작해 fade 뒤 1
+    expect(k.op[0]).toBe(0)
+    expect(k.op[1]).toBe(1)
+    expect(k.times[1]).toBeCloseTo(fade, 5)
+    // 네트워크에 들어가는 순간 0 (그 직전 fade 동안 흐려짐), 안에서는 계속 0
+    const enterNet = k.op.indexOf(0, 2)
+    expect(k.op[enterNet - 1]).toBe(1)
+    expect(k.times[enterNet] - k.times[enterNet - 1]).toBeCloseTo(fade, 5)
+    // 네트워크에서 나와 다시 선명해지고, 끝 블록에 들어가며 0으로 끝난다
+    expect(k.op.filter((o) => o === 1).length).toBe(4)
+    expect(k.op.at(-1)).toBe(0)
+    expect(k.times.at(-1)).toBe(1)
+    // 시각은 앞으로만 간다
+    for (let i = 1; i < k.times.length; i++) expect(k.times[i]).toBeGreaterThan(k.times[i - 1])
   })
 })

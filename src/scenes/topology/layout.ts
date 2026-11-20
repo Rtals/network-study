@@ -129,3 +129,50 @@ export function overviewBox(state: TopologyState): Box {
 
 /** 카메라: 기본 배율 고정, 넘치면 살짝 축소 */
 export const cameraBox = (state: TopologyState): Box => overviewBox(state)
+
+/** 패킷이 블록에 들어가거나(흐려짐) 나올 때(선명해짐) 걸리는 시간 */
+export const FADE_MS = 180
+
+/**
+ * 패킷 이동 키프레임. 블록 사이 구간은 보이며 움직이고, 블록 안(숨는 구간)은 짧게 친다.
+ * 블록에서 나올 때는 FADE_MS 동안 선명해지고, 블록에 들어갈 때는 FADE_MS 동안 흐려진다
+ * (출발 블록, 중간에 지나는 블록, 끝 블록 모두 같은 규칙).
+ */
+export function flowKeyframes(pts: Pt[], visible: boolean[], totalMs: number, fadeMs = FADE_MS) {
+  const seg: number[] = []
+  for (let i = 1; i < pts.length; i++) {
+    const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y)
+    seg.push(visible[i - 1] ? d : Math.min(d, 60))
+  }
+  const total = seg.reduce((a, b) => a + b, 0) || 1
+  const fade = Math.min(0.45, fadeMs / Math.max(1, totalMs))
+  const frames: { t: number; x: number; y: number; o: number }[] = []
+  const lerpPt = (a: Pt, b: Pt, k: number) => ({ x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k })
+  let t0 = 0
+  for (let i = 0; i < seg.length; i++) {
+    const t1 = t0 + seg[i] / total
+    const a = pts[i]
+    const b = pts[i + 1]
+    if (!visible[i]) {
+      // 블록 안: 계속 안 보인다
+      frames.push({ t: t0, ...a, o: 0 }, { t: t1, ...b, o: 0 })
+    } else {
+      const span = t1 - t0
+      const f = Math.min(fade, span / 2)
+      const p1 = lerpPt(a, b, f / span)
+      const p2 = lerpPt(a, b, 1 - f / span)
+      // 구간 시작은 항상 블록에서 나오는 순간, 끝은 항상 블록에 들어가는 순간
+      frames.push({ t: t0, ...a, o: 0 }, { t: t0 + f, ...p1, o: 1 }, { t: t1 - f, ...p2, o: 1 }, { t: t1, ...b, o: 0 })
+    }
+    t0 = t1
+  }
+  // 같은 시각의 키프레임은 아주 조금씩 밀어 순서를 지킨다
+  for (let i = 1; i < frames.length; i++) if (frames[i].t <= frames[i - 1].t) frames[i].t = Math.min(1, frames[i - 1].t + 1e-4)
+  frames[frames.length - 1].t = 1
+  return {
+    xs: frames.map((k) => k.x),
+    ys: frames.map((k) => k.y),
+    op: frames.map((k) => k.o),
+    times: frames.map((k) => Math.min(1, k.t)),
+  }
+}

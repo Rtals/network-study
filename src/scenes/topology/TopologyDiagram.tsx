@@ -10,7 +10,7 @@ import { FloorRipple, IsoArrow, IsoGrid, IsoNode, IsoStyles, PacketDot, Pill, Pi
 import { StageTools } from '../iso/StageTools'
 import { usePan } from '../iso/usePan'
 import { DROP_MS } from '../sequence/timeline'
-import { cameraBox, FLOAT, FLOW_STYLE, flowPoints, layoutNodes, NODE_STYLE, portWorld, TAG_TONE, tagSlot, type LaidNode } from './layout'
+import { cameraBox, FLOAT, FLOW_STYLE, flowKeyframes, flowPoints, layoutNodes, NODE_STYLE, portWorld, TAG_TONE, tagSlot, type LaidNode } from './layout'
 import { beatMs, finalStep, hasEnded, hasStarted, noteVisible, stepDelay, TAG_MS } from './timeline'
 import type { FlowTone, TopoBeat, TopoTag, TopologyState } from './types'
 
@@ -232,54 +232,17 @@ export function TopologyDiagram({ state, speed = 1, playKey }: Props) {
   )
 }
 
-/** 패킷 하나가 path를 따라 이동. 지나는 노드 안에서는 잠깐 사라졌다가 나오고, 끝 노드에 들어가면 사라진다 */
+/** 패킷 하나가 path를 따라 이동. 블록에서 나올 때 선명해지고 들어갈 때 흐려진다 (중간 블록도 같다) */
 function Flow({ beat, nodes, ms, reduce }: { beat: Extract<TopoBeat, { kind: 'flow' }>; nodes: LaidNode[]; ms: number; reduce: boolean }) {
   const { pts, visible } = flowPoints(nodes, beat.path)
   const style = FLOW_STYLE[beat.tone ?? 'request']
   if (pts.length < 2) return null
-  // 이동 거리에 비례한 시간 배분. 노드 안(보이지 않는 구간)은 짧게 친다
-  const seg: number[] = []
-  for (let i = 1; i < pts.length; i++) {
-    const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y)
-    seg.push(visible[i - 1] ? d : Math.min(d, 60))
-  }
-  const total = seg.reduce((a, b) => a + b, 0) || 1
-  const xs: number[] = [pts[0].x]
-  const ys: number[] = [pts[0].y]
-  const op: number[] = [1]
-  const times: number[] = [0]
-  let acc = 0
-  const eps = 0.001
-  for (let i = 1; i < pts.length; i++) {
-    acc += seg[i - 1] / total
-    const t = Math.min(1, acc)
-    const hidden = !visible[i - 1]
-    // 노드 안을 지나는 구간: 들어가는 순간 숨기고, 나오는 순간 다시 보인다
-    xs.push(pts[i].x)
-    ys.push(pts[i].y)
-    op.push(hidden ? 0 : 1)
-    times.push(t)
-    if (i < pts.length - 1 && !visible[i]) {
-      // 다음 구간이 숨는 구간이면 도착 직후 숨긴다
-      xs.push(pts[i].x)
-      ys.push(pts[i].y)
-      op.push(0)
-      times.push(Math.min(1, t + eps))
-    } else if (hidden) {
-      xs.push(pts[i].x)
-      ys.push(pts[i].y)
-      op.push(1)
-      times.push(Math.min(1, t + eps))
-    }
-  }
-  // 끝 노드에 들어가면 사라진다
-  op[op.length - 1] = 0
-  for (let i = 1; i < times.length; i++) if (times[i] <= times[i - 1]) times[i] = Math.min(1, times[i - 1] + eps / 10)
+  const { xs, ys, op, times } = flowKeyframes(pts, visible, ms)
   const sec = reduce ? 0 : ms / 1000
   return (
     <motion.g
       initial={{ x: xs[0], y: ys[0], opacity: 0 }}
-      animate={{ x: xs, y: ys, opacity: op.map((o, i) => (i === 0 ? 1 : o)) }}
+      animate={{ x: xs, y: ys, opacity: op }}
       transition={{ duration: sec, times, ease: 'linear' }}
       style={{ pointerEvents: 'none' }}
     >
