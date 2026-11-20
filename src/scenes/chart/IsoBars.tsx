@@ -4,7 +4,7 @@ import { boxString, cameraFor } from '../iso/camera'
 import { ENTER, INK, MONO, SANS, TAG } from '../iso/constants'
 import { BLOCK_PALETTE, boxOutline, type BlockColor } from '../iso/draw'
 import { boundsOf, estimateTextWidth, iso } from '../iso/geometry'
-import { PanHint } from '../iso/PanHint'
+import { StageTools } from '../iso/StageTools'
 import { IsoBlock, IsoGrid, IsoStyles, PillBox, SoftShadow } from '../iso/primitives'
 import { usePan } from '../iso/usePan'
 import type { IsoBarsState } from './types'
@@ -102,7 +102,7 @@ export function IsoBars({ state, speed = 1 }: { state: IsoBarsState; speed?: num
             })}
         </g>
       </svg>
-      <PanHint panned={pan.panned} onReset={pan.reset} />
+      <StageTools changed={pan.changed} onReset={pan.reset} />
       <div className="stage-chip pointer-events-none absolute top-3 left-3 max-w-[48%] flex-col items-start gap-1.5">
         <p className="m-0 text-[12.5px] font-bold text-ink">{state.title}</p>
         <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-[11px] font-medium text-muted">

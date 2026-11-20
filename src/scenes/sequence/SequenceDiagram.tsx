@@ -5,7 +5,7 @@ import { directionColors, highlightColors } from '../../theme'
 import { DEVICE_SCALE, EASE, ENTER, INK, MONO, SANS, TAG } from '../iso/constants'
 import { PILL_TONES, roundedPath, type PillTone } from '../iso/draw'
 import { estimateTextWidth, iso, type Pt } from '../iso/geometry'
-import { PanHint } from '../iso/PanHint'
+import { StageTools } from '../iso/StageTools'
 import { DeviceShadow, FailMark, IsoArrow, IsoDevice, IsoGrid, IsoStyles, PacketDot, PillBox, Shadow } from '../iso/primitives'
 import { usePan } from '../iso/usePan'
 import {
@@ -290,7 +290,7 @@ export function SequenceDiagram({ state, speed = 1, playKey }: Props) {
         </g>
       </motion.svg>
 
-      <PanHint panned={pan.panned} onReset={pan.reset} />
+      <StageTools changed={pan.changed} onReset={pan.reset} />
 
       {/* 범례: 패킷 색의 뜻 */}
       {state.messages.length > 0 && (

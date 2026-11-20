@@ -22,7 +22,7 @@ const phaseHeading = () => screen.getAllByRole('heading', { level: 2 })[0].textC
 
 beforeEach(() => {
   localStorage.clear()
-  useStudyStore.setState({ expandedWeeks: {}, sidebarCollapsed: false, speed: 1, stagePan: {} })
+  useStudyStore.setState({ expandedWeeks: {}, sidebarCollapsed: false, speed: 1, stagePan: {}, stageZoom: {} })
 })
 afterEach(() => vi.useRealTimers())
 
@@ -139,6 +139,25 @@ describe('3-4 장면', () => {
     expect(content.getAttribute('transform')).not.toBe(before)
     fireEvent.click(screen.getByRole('button', { name: '가운데로' }))
     expect(content.getAttribute('transform')).toBe(before)
+  })
+
+  it('휠로 굴린 만큼 바로 확대·축소(최대 3배, 최소 1/2배), 맞춤으로 원래대로', () => {
+    renderAt('/w3/handshake/1')
+    const svg = screen.getByRole('img', { name: /연결 다이어그램/ })
+    const content = screen.getByTestId('stage-content')
+    const scale = () => Number(content.getAttribute('transform')?.match(/scale\(([\d.]+)\)/)?.[1] ?? 1)
+    expect(screen.queryByRole('button', { name: '확대' })).not.toBeInTheDocument()
+    fireEvent.wheel(svg, { deltaY: -20 })
+    const a = scale()
+    fireEvent.wheel(svg, { deltaY: -20 })
+    expect(a).toBeGreaterThan(1)
+    expect(scale()).toBeGreaterThan(a)
+    for (let i = 0; i < 40; i++) fireEvent.wheel(svg, { deltaY: -100 })
+    expect(scale()).toBe(3)
+    fireEvent.click(screen.getByRole('button', { name: '가운데로' }))
+    expect(scale()).toBe(1)
+    for (let i = 0; i < 40; i++) fireEvent.wheel(svg, { deltaY: 100 })
+    expect(scale()).toBe(0.5)
   })
 
   it('주고받은 메시지는 무대가 아니라 오른쪽 패널에 뜻풀이와 함께 나온다', () => {

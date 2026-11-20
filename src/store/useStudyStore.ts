@@ -30,6 +30,9 @@ type StudyState = {
   /** 무대를 끌어서 옮긴 거리 (viewBox 단위). 장면 종류별로 따로 둔다: "sequence", "isoBars" */
   stagePan: Record<string, { x: number; y: number }>
   setStagePan: (key: string, pan: { x: number; y: number }) => void
+  /** 무대 확대·축소 배율 (1 = 기본). 장면 종류별로 따로 둔다 */
+  stageZoom: Record<string, number>
+  setStageZoom: (key: string, zoom: number) => void
   /** 지금 Phase의 애니메이션을 다시 보여 줄 때마다 1씩 늘어난다 */
   replayCount: number
   replay: () => void
@@ -60,9 +63,11 @@ export const useStudyStore = create<StudyState>()(
       clearEvents: () => set({ eventLog: [] }),
       stagePan: {},
       setStagePan: (key, pan) => set((s) => ({ stagePan: { ...s.stagePan, [key]: pan } })),
+      stageZoom: {},
+      setStageZoom: (key, zoom) => set((s) => ({ stageZoom: { ...s.stageZoom, [key]: zoom } })),
       replayCount: 0,
       replay: () => set((s) => ({ replayCount: s.replayCount + 1 })),
-      enterStep: () => set({ mode: 'follow', playing: false, panelTab: 'explain', eventLog: [], stagePan: {} }),
+      enterStep: () => set({ mode: 'follow', playing: false, panelTab: 'explain', eventLog: [], stagePan: {}, stageZoom: {} }),
     }),
     {
       name: 'network-study:v1',

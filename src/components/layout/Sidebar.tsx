@@ -65,11 +65,10 @@ export function Sidebar() {
 
   return (
     <nav aria-label="Week와 Step 목록" className="flex w-[260px] shrink-0 flex-col">
-      <div className="flex items-center justify-between px-5 pt-5 pb-3">
-        <Link to="/" className="flex items-center gap-2.5 text-[14px] leading-tight font-extrabold text-ink">
+      <div className="flex items-center justify-between gap-2 pt-5 pr-3 pb-3 pl-4">
+        <Link to="/" className="flex min-w-0 items-center gap-2 text-[13.5px] font-extrabold tracking-[-0.02em] whitespace-nowrap text-ink">
           <Logo />
-          네트워크 구조
-          <br />및 설계
+          네트워크 구조 및 설계
         </Link>
         <button type="button" aria-label="사이드바 접기" onClick={toggleSidebar} className="tool tool--icon">
           <PanelLeft size={15} />
@@ -163,13 +162,25 @@ export function Sidebar() {
   )
 }
 
-/** 사이트 로고: 겹친 작은 블록 두 개 (무대 블록과 같은 스타일) */
+/** 사이트 로고: 지구본 (무대 블록처럼 파스텔 채움 + 잉크색 테두리 + 아래로 단단한 그림자) */
 function Logo() {
+  const ink = '#1d1b18'
   return (
-    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
-      <rect x="2" y="3" width="15" height="12" rx="3.5" fill="#cfe1f4" stroke="#1d1b18" strokeWidth="1.6" />
-      <rect x="12" y="14" width="15" height="12" rx="3.5" fill="#e2d7f1" stroke="#1d1b18" strokeWidth="1.6" />
-      <path d="M9.5 15v4.5h2.5" fill="none" stroke="#1d1b18" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" className="shrink-0">
+      {/* 단단한 그림자 */}
+      <circle cx="14" cy="15.6" r="11" fill={ink} />
+      {/* 바다 */}
+      <circle cx="14" cy="14" r="11" fill="#cfe1f4" stroke={ink} strokeWidth="1.6" />
+      {/* 땅 (연두) */}
+      <path d="M7.2 8.6c1.8-.6 3.4.2 4.2 1.5.7 1.2-.2 2.4-1.5 2.6-1.1.2-1.4 1.3-.9 2.3.5 1.1-.3 2-1.5 1.8-1.4-.3-2.6-1.8-3-3.5.1-1.8 1.1-3.6 2.7-4.7z" fill="#cfe3b2" stroke={ink} strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M16.6 15.2c1.6-.4 3.4.3 4 1.6.5 1.2-.1 2.6-1.3 3.4-1 .7-2.3.6-2.8-.4-.4-.8-.1-1.6-.6-2.3-.5-.8-.5-1.9.7-2.3z" fill="#cfe3b2" stroke={ink} strokeWidth="1.2" strokeLinejoin="round" />
+      {/* 경선·위선 */}
+      <ellipse cx="14" cy="14" rx="5" ry="11" fill="none" stroke={ink} strokeWidth="1.2" strokeOpacity="0.55" />
+      <path d="M3 14h22M4.6 8.6h18.8M4.6 19.4h18.8" fill="none" stroke={ink} strokeWidth="1.2" strokeOpacity="0.55" />
+      {/* 윗면 광택 */}
+      <path d="M7.5 6.8a10 10 0 0 1 6-2.6" fill="none" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" strokeOpacity="0.85" />
+      {/* 바깥 테두리 다시 (선들이 테두리를 덮지 않게) */}
+      <circle cx="14" cy="14" r="11" fill="none" stroke={ink} strokeWidth="1.6" />
     </svg>
   )
 }
