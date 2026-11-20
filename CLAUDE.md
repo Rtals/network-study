@@ -29,7 +29,7 @@ Vite + React + TypeScript, Tailwind CSS, Motion(framer-motion), React Router(Has
 4. **숫자는 계산으로.** 서브넷, Seq/ACK, BDP, RTT 합계, Polling 비용 등은 `src/lib/`의 순수 함수로 계산하고 단위 테스트(Vitest)를 작성한다. 하드코딩한 숫자는 강의자료 예시 값과 일치하는지 테스트로 확인한다.
 5. **시각 규칙 준수.** 프로토콜 색상(L2 회색, IP 파랑, TCP 초록, UDP 주황, HTTP 보라, TLS 금색, DNS 청록, 오류 빨강)은 `src/theme.ts` 한 곳에서 정의하고 모든 장면이 공유한다.
 6. **URL이 곧 상태.** `/#/:week/:step/:phase`로 어떤 화면이든 직접 열 수 있어야 한다.
-7. **보안 공격 Step(6-15)은 완전한 가짜 시뮬레이션.** 실제 스크립트 실행, 실제 요청 전송, eval 사용 금지.
+7. **보안 공격 Step(6-20~6-23)은 완전한 가짜 시뮬레이션.** 실제 스크립트 실행, 실제 요청 전송, eval 사용 금지.
 
 ## 작업 방식
 - 한 번에 마일스톤 하나 또는 Step 하나만 작업한다.

@@ -11,6 +11,7 @@ export const BLOCK_PALETTE = {
   orange: { top: ['#fde6cd', '#fbd4ae'], side: ['#f8c699', '#f0b281'] },
   yellow: { top: ['#fff2d6', '#fde6b8'], side: ['#fad99c', '#f3c980'] },
   slab: { top: ['#f7f0e7', '#efe6da'], side: ['#eae0d3', '#e0d4c5'] },
+  rose: { top: ['#fce6e2', '#f8d3cc'], side: ['#f2bdb3', '#e9a597'] },
 } as const
 export type BlockColor = keyof typeof BLOCK_PALETTE
 

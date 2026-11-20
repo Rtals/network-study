@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'motion/react'
 import type { CSSProperties, ReactNode } from 'react'
-import { DROP, EASE, INK, SANS, STROKE, TAG } from './constants'
+import { DROP, EASE, INK, SANS, STROKE, TAG, TILE } from './constants'
+import { Glyph, type GlyphKind } from './glyphs'
 import {
   BLOCK_PALETTE,
   PILL_TONES,
@@ -109,6 +110,35 @@ export function SoftShadow({ d, lift = 0, opacity = 0.24 }: { d: string; lift?: 
   return <path d={d} transform={`translate(0 ${f(8 + lift)})`} fill="#6b5236" opacity={opacity} filter="url(#iso-blur-lg)" />
 }
 
+/**
+ * 바닥 물결: 오브젝트에 설명 알약이 뜰 때 그 블록 바닥에서 원 하나가 한 번 퍼져 나간다.
+ * "여기를 보라"는 표시. (x, y)는 블록 바닥 중심(월드), delay는 초.
+ */
+export function FloorRipple({ x, y, color, delay = 0 }: { x: number; y: number; color: string; delay?: number }) {
+  const reduce = useReducedMotion()
+  if (reduce) return null
+  const c = iso(x, y)
+  // 블록 바닥 마름모 바로 바깥에서 시작해야 가장 진할 때 가려지지 않는다
+  const r = TILE * 0.8
+  return (
+    <motion.ellipse
+      data-testid="floor-ripple"
+      cx={c.x}
+      cy={c.y}
+      rx={r * Math.SQRT2 * ISO_X}
+      ry={r * Math.SQRT2 * ISO_Y}
+      fill="none"
+      stroke={color}
+      strokeWidth={2.6}
+      pointerEvents="none"
+      style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: [0.95, 1.7], opacity: [0.9, 0] }}
+      transition={{ duration: 1.1, ease: EASE, delay }}
+    />
+  )
+}
+
 /** 바닥에 드리운 둥근 그림자 (작은 오브젝트용) */
 export function Shadow({ x, y, r, className, style }: { x: number; y: number; r: number; className?: string; style?: CSSProperties }) {
   const c = iso(x, y)
@@ -132,29 +162,6 @@ export function DeviceShadow({ device, x, y }: { device: 'pc' | 'server'; x: num
   return <SoftShadow d={boxOutline(x + e.x0, y + e.y0, 0, e.x1 - e.x0, e.y1 - e.y0, e.h, 12)} />
 }
 
-/** 블록 윗면에 찍는 선 아이콘 (화면 기준, 중심 c) */
-function Glyph({ kind, c }: { kind: 'monitor' | 'server'; c: Pt }) {
-  const common = { fill: 'none', stroke: INK, strokeWidth: 2.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
-  if (kind === 'monitor') {
-    return (
-      <g transform={`translate(${f(c.x)} ${f(c.y)})`} {...common}>
-        <rect x={-15} y={-13} width={30} height={20} rx={3.5} fill="#ffffff" fillOpacity={0.55} />
-        <path d="M-6 3l4-4M-1 3h7" strokeWidth={2.2} />
-        <path d="M0 7v5M-7 12h14" />
-      </g>
-    )
-  }
-  return (
-    <g transform={`translate(${f(c.x)} ${f(c.y)})`} {...common}>
-      <rect x={-15} y={-13} width={30} height={11} rx={3} fill="#ffffff" fillOpacity={0.55} />
-      <rect x={-15} y={1} width={30} height={11} rx={3} fill="#ffffff" fillOpacity={0.55} />
-      <circle cx={-9} cy={-7.5} r={1.6} fill={INK} stroke="none" />
-      <circle cx={-9} cy={6.5} r={1.6} fill={INK} stroke="none" />
-      <path d="M-2 -7.5h11M-2 6.5h11" strokeWidth={2.2} />
-    </g>
-  )
-}
-
 type DeviceProps = { device: 'pc' | 'server'; x: number; y: number; label: string; /** false면 그림자를 빼고 그린다 */ shadow?: boolean }
 
 /** 기기 블록: 클라이언트 = 보라 + 모니터 아이콘, 서버 = 파랑 + 서버 아이콘. 이름은 블록에 직접 쓴다 */
@@ -170,6 +177,42 @@ export function IsoDevice({ device, x, y, label, shadow = true }: DeviceProps) {
         <text x={at.x} y={at.y} textAnchor="middle" fontFamily={SANS} fontSize={18} fontWeight={800} fill={INK}>
           {label}
         </text>
+      </IsoBlock>
+    </g>
+  )
+}
+
+type NodeProps = {
+  x: number
+  y: number
+  h: number
+  glyph: GlyphKind
+  color: BlockColor
+  label: string
+  /** 이름 아래 작은 글씨 (예: "Wi-Fi · ISP") */
+  sub?: string
+  shadow?: boolean
+}
+
+/** 아무 아이콘이나 얹는 블록 (topology 등). 크기는 TILE 정사각 바닥 + 높이 h */
+export function IsoNode({ x, y, h, glyph, color, label, sub, shadow = true }: NodeProps) {
+  const half = TILE / 2
+  const e = { x0: -half, x1: half, y0: -half, y1: half, h }
+  const top = iso(x, y, h)
+  const at = blockLabelAt(x, y, e)
+  return (
+    <g>
+      {shadow && <SoftShadow d={boxOutline(x - half, y - half, 0, TILE, TILE, h, 12)} />}
+      <IsoBlock x={x - half} y={y - half} w={TILE} d={TILE} h={h} color={color}>
+        <Glyph kind={glyph} c={{ x: top.x, y: top.y - 1 }} />
+        <text x={at.x} y={at.y - (sub ? 6 : 0)} textAnchor="middle" fontFamily={SANS} fontSize={17} fontWeight={800} fill={INK}>
+          {label}
+        </text>
+        {sub && (
+          <text x={at.x} y={at.y + 12} textAnchor="middle" fontFamily={SANS} fontSize={12} fontWeight={600} fill="#5c564e">
+            {sub}
+          </text>
+        )}
       </IsoBlock>
     </g>
   )
@@ -282,7 +325,18 @@ export function FailMark({ at }: { at: Pt }) {
  * 바닥 위의 검은 연결선 (월드 좌표 from → to). 화살촉은 화면 기준 작은 삼각형.
  * both면 양쪽 끝에 화살촉.
  */
-export function IsoArrow({ from, to, both = false }: { from: { x: number; y: number }; to: { x: number; y: number }; both?: boolean }) {
+export function IsoArrow({
+  from,
+  to,
+  both = false,
+  danger = false,
+}: {
+  from: { x: number; y: number }
+  to: { x: number; y: number }
+  both?: boolean
+  /** 빨간 점선 (공격자에게 새는 길 등) */
+  danger?: boolean
+}) {
   const a = iso(from.x, from.y)
   const b = iso(to.x, to.y)
   const len = Math.hypot(b.x - a.x, b.y - a.y) || 1
@@ -294,11 +348,12 @@ export function IsoArrow({ from, to, both = false }: { from: { x: number; y: num
     poly([tip, { x: tip.x - sx * L - sy * W, y: tip.y - sy * L + sx * W }, { x: tip.x - sx * L + sy * W, y: tip.y - sy * L - sx * W }])
   const p0 = both ? { x: a.x + ux * L * 0.8, y: a.y + uy * L * 0.8 } : a
   const p1 = { x: b.x - ux * L * 0.8, y: b.y - uy * L * 0.8 }
+  const color = danger ? '#c0392b' : INK
   return (
-    <g stroke={INK} strokeLinejoin="round" strokeLinecap="round">
-      <line x1={f(p0.x)} y1={f(p0.y)} x2={f(p1.x)} y2={f(p1.y)} strokeWidth={STROKE} />
-      <polygon points={head(b, ux, uy)} fill={INK} strokeWidth={1.6} />
-      {both && <polygon points={head(a, -ux, -uy)} fill={INK} strokeWidth={1.6} />}
+    <g stroke={color} strokeLinejoin="round" strokeLinecap="round">
+      <line x1={f(p0.x)} y1={f(p0.y)} x2={f(p1.x)} y2={f(p1.y)} strokeWidth={danger ? STROKE * 0.8 : STROKE} strokeDasharray={danger ? '9 7' : undefined} />
+      <polygon points={head(b, ux, uy)} fill={color} strokeWidth={1.6} />
+      {both && <polygon points={head(a, -ux, -uy)} fill={color} strokeWidth={1.6} />}
     </g>
   )
 }

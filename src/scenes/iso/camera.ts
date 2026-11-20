@@ -7,7 +7,7 @@ import type { Pt } from './geometry'
  */
 export const ASPECT = 1.6
 export const VIEW_W = 1100
-export const MAX_ZOOM_OUT = 1.5
+export const MAX_ZOOM_OUT = 1.7
 
 export type Box = { x: number; y: number; w: number; h: number }
 export type Bounds = { minX: number; minY: number; maxX: number; maxY: number }

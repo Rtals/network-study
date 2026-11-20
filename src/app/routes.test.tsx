@@ -160,6 +160,15 @@ describe('3-4 장면', () => {
     expect(scale()).toBe(0.5)
   })
 
+  it('상태 알약이 바뀌면 그 기기 바닥에 물결이 생긴다', () => {
+    vi.useFakeTimers()
+    renderAt('/w3/handshake/2')
+    expect(screen.queryAllByTestId('floor-ripple')).toHaveLength(0)
+    for (let t = 0; t < 1600; t += 200) act(() => vi.advanceTimersByTime(200))
+    // SYN을 보내는 순간 클라이언트가 SYN_SENT로 바뀐다
+    expect(screen.queryAllByTestId('floor-ripple')).toHaveLength(1)
+  })
+
   it('주고받은 메시지는 무대가 아니라 오른쪽 패널에 뜻풀이와 함께 나온다', () => {
     renderAt('/w3/handshake/3')
     const stage = screen.getByRole('img', { name: /연결 다이어그램/ })
@@ -198,6 +207,32 @@ describe('3-4 장면', () => {
     renderAt('/w3/handshake/8')
     expect(screen.getByRole('img', { name: /RTT 30ms 기준 연결 수립 비용/ })).toBeInTheDocument()
     expect(screen.getByText('실무 신호')).toBeInTheDocument()
+  })
+})
+
+describe('6-1 보안의 큰 그림', () => {
+  it('경로 다이어그램과 오른쪽 설명이 나온다', () => {
+    renderAt('/w6/security-map/2')
+    expect(screen.getByRole('img', { name: /경로 다이어그램: 브라우저, 네트워크, 웹 서버, 인증·인가, DB/ })).toBeInTheDocument()
+    expect(phaseHeading()).toContain('요청 하나가 지나가는 길')
+    expect(screen.getByText('2 / 5')).toBeInTheDocument()
+  })
+
+  it('공격 Phase는 알약 없이 시작해서 차례로 붙는다', () => {
+    vi.useFakeTimers()
+    renderAt('/w6/security-map/3')
+    const stage = () => within(screen.getByRole('img', { name: /경로 다이어그램/ }))
+    expect(stage().queryByText('XSS로 토큰 탈취')).not.toBeInTheDocument()
+    for (let t = 0; t < 3000; t += 200) act(() => vi.advanceTimersByTime(200))
+    expect(stage().getByText('XSS로 토큰 탈취')).toBeInTheDocument()
+  })
+
+  it('알약이 뜨는 블록 바닥에 물결이 생긴다 (처음부터 있던 알약에는 없음)', () => {
+    vi.useFakeTimers()
+    renderAt('/w6/security-map/3')
+    expect(screen.queryAllByTestId('floor-ripple')).toHaveLength(0)
+    for (let t = 0; t < 3000; t += 200) act(() => vi.advanceTimersByTime(200))
+    expect(screen.queryAllByTestId('floor-ripple').length).toBeGreaterThan(0)
   })
 })
 

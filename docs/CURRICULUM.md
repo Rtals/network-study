@@ -8,7 +8,8 @@
 - 🧪 = 직접 해보기(sandbox) 모드 지원
 - 💡 = 강의자료에 "쉽게 보기" 비유 슬라이드가 있음 → 오른쪽 패널 "쉽게 보기" 탭에 사용
 
-학습 목표, 과제 안내, Lab 안내 슬라이드는 Step으로 만들지 않고 **Week 개요 화면**(`/#/w3`)에 요약한다.
+**제작에서 제외하는 페이지 (모든 Week, 2026-11-20 결정)**: 강의자료의 첫 페이지(표지), Learning Objectives, 지난주에서 이번주로, Core Vocabulary. Step·Phase·설명의 근거로 쓰지 않는다.
+과제 안내, Lab 안내 슬라이드도 Step으로 만들지 않는다.
 Phase 목록은 초안이다. 구현 전에 해당 페이지를 다시 읽고 Phase를 확정할 것.
 
 ---
@@ -123,27 +124,60 @@ Phase 목록은 초안이다. 구현 전에 해당 페이지를 다시 읽고 Ph
 ## W6 · Authentication & Web Security
 - 강의자료: `Week06_Authentication_Web_Security_Revised.pdf` (54p)
 - 흐름: "Week 5의 API는 누구든 호출할 수 있었다 → 누가, 어떤 통로로, 무엇을 하는지 통제한다"
-- Week 개요 화면: 회사 건물 비유(통로·신원·출입증·권한·기록)를 지도로 사용
+- 강의자료의 네 부분(①통로 ②신원 ③상태 ④권한·공격)을 그대로 따른다. 26 Step + Quick Check (2026-11-20 확정)
+- 제외: p.1–4(표지·Learning Objectives·지난주에서 이번주로·Core Vocabulary), Lab·AI 실습·과제(p.49–51, 53)
+- 공격 실습(6-20~6-23)은 **완전한 가짜 시뮬레이션**: 실제 스크립트 실행·요청 전송·eval 금지
+
+**A. 통로 — TLS**
 
 | # | Step | p. | 장면 | 하단 Phase 순서 | 직접 해보기 / 퀴즈 |
 |---|---|---|---|---|---|
-| 6-1 | 보안의 큰 그림과 공격 지점 | 3, 5–6 | topology 💡 | 회사 건물 비유 → 요청 경로 위 공격 지점 → 각 지점의 방어 장치 | 지점 클릭 → 해당 Step 링크 |
-| 6-2 ★ | HTTP는 엽서, HTTPS는 봉투 | 7 | topology 💡 | HTTP로 비밀번호 전송 → 중간 장비가 읽음 → HTTPS로 전송 → 암호문만 보임 | 🧪 HTTP/HTTPS 토글 · QC Q2 |
-| 6-3 | 대칭키와 공개키 | 8–9 | sequence 💡 | 대칭키: 같은 열쇠, 열쇠 전달 문제 → 공개키: 열린 자물쇠 → TLS는 공개키로 열쇠 공유, 대칭키로 암호화 | |
-| 6-4 | 해시와 전자서명 | 10 | sandbox | 입력 → 해시(지문) → 한 글자 바꾸면 완전히 다른 해시 → 개인키로 서명 → 공개키로 검증 | 🧪 텍스트 입력 → 해시 변화 |
-| 6-5 ★ | 인증서와 신뢰 체인 | 11–12 | flow 💡 | 여권 비유 → Root CA(미리 설치) → Intermediate → 서버 인증서 → 서명을 한 단계씩 검증 → 도메인·기간 확인 | QC Q3 (W4 4-12에서 재사용) |
-| 6-6 ★ | TLS 1.3 Handshake | 13–15 | sequence 💡 | (TCP 3-way 이후) ClientHello + 키 공유 → ServerHello + 인증서 + Finished → Client Finished → 암호화 통신 → 지켜 주는 것 / 지켜 주지 않는 것 → 인증서 오류 종류 | QC Q2 |
-| 6-7 ★ | Authentication vs Authorization | 16–17 | flow 💡 | AuthN "누구세요?" → AuthZ "해도 되나요?" → 순서 → 실패 코드 401 / 403 → 호텔 비유 | 🧪 상황 카드 → 401/403 판정 · QC Q1 |
-| 6-8 ★ | MFA와 비밀번호 저장 | 18–20 | sandbox 💡 | 인증 요소 3종 → 평문 저장 → 해시 한 번 → 같은 비밀번호 = 같은 해시(레인보우 테이블) → Salt 추가 → 느린 해시(bcrypt/argon2) | 🧪 비밀번호 입력 → 저장 방식별 DB 표 · QC Q4 |
-| 6-9 | 로그인 한 번의 전체 흐름 | 21 | sequence | TLS 위 비밀번호 전송 → 해시 비교 → 출입증(세션/토큰) 발급 → 이후 요청에 출입증 첨부 | |
-| 6-10 ★ | Cookie와 Session, 보안 속성 | 22–24 | sandbox 💡 | Set-Cookie → 브라우저가 자동 첨부 → 세탁소 번호표 비유(정보는 서버 장부) → HttpOnly / Secure / SameSite 속성별 차단 공격 | 🧪 속성 토글 → XSS·도청·CSRF 통과 여부 · QC Q5, Q6 |
-| 6-11 ★ | 토큰 기반 인증과 JWT | 25–29 | anatomy 💡 | 세션(서버가 기억) vs 토큰(스스로 증명) → header.payload.signature 해부 → Base64URL은 인코딩일 뿐 → payload 변조 → 서명 불일치 → 서버 검증 순서 | 🧪 payload 수정 → 검증 실패 확인 · QC Q7 |
-| 6-12 ★ | Access + Refresh Token과 저장 위치 | 30–33 | sequence 💡 | Access 만료 → 401 → Refresh로 재발급 → 놀이공원 이용권 비유 → 저장 위치별 XSS/CSRF 트레이드오프 → Session vs JWT 선택 기준 | 🧪 시간 경과 슬라이더 · QC Q8 |
-| 6-13 ★ | OAuth 2.0과 PKCE | 34–36 | sequence 💡 | 비밀번호를 앱에 주면? → 발레파킹 키 비유 → 사용자·앱·인가서버·리소스서버 4자 흐름 → Authorization Code → 뒷단에서 토큰 교환 → scope | QC Q9 |
-| 6-14 ★ | API Key와 인가 모델 | 37–38 | compare | API Key(프로그램 식별) vs 로그인 토큰(사용자 식별) → RBAC → 소유권 검사 | QC Q10 |
-| 6-15 | 공격 실습실: IDOR · XSS · CSRF · SQLi | 39–42 | sandbox 💡 | IDOR: 주소창 숫자 변경 → XSS: 입력이 코드로 실행 → CSRF: 쿠키 자동 첨부 악용 → SQLi: `admin' --` → 각 방어 적용 후 재시도 | 🧪 **공격/방어 토글** (전부 가짜 시뮬레이션, 실제 실행 없음) |
-| 6-16 | Rate Limiting · 보안 헤더 · Secret 관리 | 43–45 | chart | 무차별 대입 시도 그래프 → Rate Limit 적용 → 보안 응답 헤더 표 → 코드에 비밀 넣지 않기 | 🧪 시도 횟수 슬라이더 |
-| 6-17 | Failure Modes와 Troubleshooting | 46–48 | diagnose | Architecture View → 증상 → 원인 → 확인 → 브라우저 → curl → 토큰 내용 → 서버 로그 순서 | 🧪 증상 카드 |
+| 6-1 | 보안의 큰 그림: 회사 건물과 공격 지점 | 5–6, 46 | topology 💡 | 회사 건물 비유(통로·신원·출입증·권한·기록) → 요청 경로 → 구간별 공격 → 구간별 방어 → 빠지면? | |
+| 6-2 ★ | HTTP는 엽서, HTTPS는 봉투 | 7 | topology 💡 | HTTP로 비밀번호 전송 → 중간 장비가 읽음·고침·사칭 → HTTPS로 전송 → 암호문만 보임 → 기밀성·무결성·인증 | 🧪 HTTP/HTTPS 토글 · QC Q2 |
+| 6-3 | 대칭키와 공개키 | 8–9 | sequence 💡 | 대칭키: 같은 열쇠, 키 전달 문제 → 공개키: 열린 자물쇠 → 하이브리드(공개키로 키 공유, 대칭키로 암호화) → Forward Secrecy | |
+| 6-4 | 해시와 전자서명 | 10 | sandbox | 입력 → 해시(지문) → 한 글자 바꾸면 완전히 다른 해시 → 개인키로 서명 → 공개키로 검증 → 해시·HMAC·서명 비교 | 🧪 텍스트 입력 → SHA-256 변화 |
+| 6-5 ★ | 인증서와 신뢰 체인 | 11–12 | flow 💡 | 여권 비유 → Root CA(미리 설치) → Intermediate → 서버 인증서 → 브라우저 검증 6단계 | QC Q3 (W4 4-12에서 재사용) |
+| 6-6 ★ | TLS 1.3 Handshake | 13–14 | sequence 💡 | (TCP 3-way 이후) ClientHello + key_share → ServerHello + 인증서 → CertificateVerify + Finished → Client Finished + HTTP 요청 → 물감 섞기 비유 | QC Q2 |
+| 6-7 ★ | TLS가 지켜 주는 것과 인증서 오류 | 15 | compare | 지켜 준다 / 지켜 주지 않는다 → HSTS → 인증서 오류 4종(원인·조치) | QC Q2 |
+
+**B. 신원 — 인증**
+
+| # | Step | p. | 장면 | 하단 Phase 순서 | 직접 해보기 / 퀴즈 |
+|---|---|---|---|---|---|
+| 6-8 ★ | 인증과 인가 (401 vs 403) | 16–17 | flow 💡 | AuthN "누구세요?" → AuthZ "해도 되나요?" → 순서 → 401 / 403 → 호텔 카드키 비유 | 🧪 상황 카드 → 401/403 판정 · QC Q1 |
+| 6-9 | MFA와 OTP | 18 | sequence | 인증 요소 3종 → 조합별 MFA 판정 → TOTP: 같은 비밀값 + 30초 시각 → 6자리 일치 → Passkey | |
+| 6-10 ★ | 비밀번호 저장: 해시·Salt·느린 해시 | 19–20 | sandbox 💡 | 평문 → 암호화 → 단순 해시(같은 비번 = 같은 해시) → 레인보우 테이블 → Salt → 느린 해시(Argon2id) | 🧪 비밀번호 입력 → 저장 방식별 DB 표 · QC Q4 |
+| 6-11 | 로그인 한 번의 전체 흐름 | 21 | sequence | 브라우저·API·DB: HTTPS로 비밀번호 전송 → 해시 비교 → 출입증(세션/토큰) 발급 → 이후 요청엔 출입증만 → 로그인 API 체크리스트 | |
+
+**C. 상태 — 로그인 유지**
+
+| # | Step | p. | 장면 | 하단 Phase 순서 | 직접 해보기 / 퀴즈 |
+|---|---|---|---|---|---|
+| 6-12 ★ | Cookie와 Session | 22–23 | sequence 💡 | Set-Cookie → 브라우저가 자동 첨부(편리함·위험) → 세탁소 번호표(정보는 서버 장부) → 로그아웃 = 장부에서 삭제 | QC Q5 |
+| 6-13 ★ | Cookie 보안 속성 | 24 | sandbox | HttpOnly → Secure → SameSite(Strict/Lax/None) → Max-Age·Domain | 🧪 속성 토글 → XSS·도청·CSRF 통과 여부 · QC Q6 |
+| 6-14 ★ | 토큰 방식과 JWT 해부 | 25–27, 29 | anatomy 💡 | 세션(서버가 기억) vs 토큰(스스로 증명) → header.payload.signature → Base64URL은 인코딩일 뿐 → payload 변조 → 서명 불일치 → 넣으면 안 되는 것 | 🧪 payload 수정 → 검증 실패 · QC Q7 |
+| 6-15 | 서버의 JWT 검증 순서 | 28 | flow | 형식 → 알고리즘 고정 → 서명 → 시간 → 발급자·대상 → 인가, 실제 취약점(alg:none·알고리즘 혼동), HS256 vs RS256 | |
+| 6-16 ★ | Access + Refresh Token | 30–31 | sequence 💡 | Access로 호출 → 만료 → 401 → Refresh로 재발급 → Rotation(도난 탐지) → 놀이공원 이용권 비유 | 🧪 시간 경과 슬라이더 · QC Q8 |
+| 6-17 | 토큰 저장 위치와 Session vs JWT | 32–33 | compare | 저장 위치 4곳의 XSS·CSRF 트레이드오프 → 권장 조합(SPA) → Session vs JWT 선택 기준 | |
+
+**D. 권한과 공격**
+
+| # | Step | p. | 장면 | 하단 Phase 순서 | 직접 해보기 / 퀴즈 |
+|---|---|---|---|---|---|
+| 6-18 ★ | OAuth 2.0과 PKCE | 34–36 | sequence 💡 | 비밀번호를 앱에 주면? → 발레파킹 키 비유 → 4자 역할 → Authorization Code → 뒷단 토큰 교환 + PKCE → scope | QC Q9 |
+| 6-19 ★ | API Key와 인가 모델 | 37–38 | compare | API Key(프로그램 식별) vs 로그인 토큰(사용자 식별) → 키 관리 원칙 → RBAC · 소유권 · ABAC · Scope | QC Q10 |
+| 6-20 | 공격 실습 ① IDOR | 39 | sandbox 💡 | 주소창 숫자 변경 → 남의 성적 조회 → 소유권 검사 적용 → 403 | 🧪 공격/방어 토글 (가짜 시뮬레이션) |
+| 6-21 | 공격 실습 ② XSS | 40 | sandbox 💡 | 댓글이 코드로 실행 → 토큰 유출 → 출력 이스케이프·CSP 적용 → 글자로만 표시 | 🧪 공격/방어 토글 (가짜 시뮬레이션) |
+| 6-22 | 공격 실습 ③ CSRF | 41 | sandbox 💡 | 숨은 자동 제출 폼 → 쿠키 자동 첨부로 송금 → SameSite·CSRF 토큰 적용 → 차단 | 🧪 공격/방어 토글 (가짜 시뮬레이션) |
+| 6-23 | 공격 실습 ④ SQL Injection | 42 | sandbox 💡 | `admin' --` 입력 → 비밀번호 검사 사라짐 → 파라미터 바인딩 적용 → 값으로만 취급 | 🧪 공격/방어 토글 (가짜 시뮬레이션) |
+| 6-24 | 무차별 대입과 Rate Limiting | 43 | chart | 공격 4종 → 시도 횟수 그래프 → Rate Limit(429 + Retry-After) → 영구 잠금의 함정 | 🧪 시도 횟수 슬라이더 |
+| 6-25 | 보안 응답 헤더와 Secret 관리 | 44–45 | anatomy | 응답 헤더 해부(HSTS·CSP·nosniff·frame-ancestors·Referrer·Cache) → 코드에 비밀을 넣으면? → 환경 변수 · 폐기·재발급 | |
+
+**마무리**
+
+| # | Step | p. | 장면 | 하단 Phase 순서 | 직접 해보기 / 퀴즈 |
+|---|---|---|---|---|---|
+| 6-26 | Architecture View와 장애 진단 | 46–48 | diagnose | 구조 위 개념 배치 → 증상 → 원인 → 확인 → 브라우저 → curl → 토큰 내용 → 서버 로그 순서 | 🧪 증상 카드 |
 | 6-Q | Quick Check | 52 | quiz | Q1~Q10 | |
 
 ---
@@ -182,9 +216,9 @@ Phase 목록은 초안이다. 구현 전에 해당 페이지를 다시 읽고 Ph
 
 | 개념 | 자세히 만드는 곳 | 요약 + 링크 |
 |---|---|---|
-| TLS 1.3 Handshake, 인증서 체인 | W6 (6-5, 6-6) | W4 4-12, 4-13 |
-| 세션 쿠키 vs 토큰 | W6 (6-10, 6-11) | W4 4-9, W5 5-14 |
-| 401 vs 403 | W6 6-7 | W5 5-14 |
+| TLS 1.3 Handshake, 인증서 체인 | W6 (6-5, 6-6, 6-7) | W4 4-12, 4-13 |
+| 세션 쿠키 vs 토큰 | W6 (6-12, 6-14, 6-17) | W4 4-9, W5 5-14 |
+| 401 vs 403 | W6 6-8 | W5 5-14 |
 | NAT | W2 2-10 | W7 7-9 (STUN/TURN) |
 | Connection refused vs timed out | W3 3-15 | W2 2-15 |
 | QUIC / HOL Blocking | W3 3-12 | W4 4-11 |
@@ -197,5 +231,5 @@ Phase 목록은 초안이다. 구현 전에 해당 페이지를 다시 읽고 Ph
 | W3 | 17 | 9 | sequence, chart, compare, diagnose |
 | W4 | 16 | 9 | (재사용 위주) |
 | W5 | 19 | 10 | sandbox: CORS 빌더, Origin 비교기 |
-| W6 | 18 | 10 | sandbox: 공격 실습실 |
+| W6 | 27 | 13 | topology, flow, anatomy, compare, diagnose, sandbox: 공격 실습 4종 |
 | W7 | 18 | 9 | sandbox: Wildcard 매칭기 |

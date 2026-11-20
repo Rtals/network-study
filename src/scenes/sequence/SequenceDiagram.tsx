@@ -6,7 +6,7 @@ import { DEVICE_SCALE, EASE, ENTER, INK, MONO, SANS, TAG } from '../iso/constant
 import { PILL_TONES, roundedPath, type PillTone } from '../iso/draw'
 import { estimateTextWidth, iso, type Pt } from '../iso/geometry'
 import { StageTools } from '../iso/StageTools'
-import { DeviceShadow, FailMark, IsoArrow, IsoDevice, IsoGrid, IsoStyles, PacketDot, PillBox, Shadow } from '../iso/primitives'
+import { DeviceShadow, FailMark, FloorRipple, IsoArrow, IsoDevice, IsoGrid, IsoStyles, PacketDot, PillBox, Shadow } from '../iso/primitives'
 import { usePan } from '../iso/usePan'
 import {
   BUBBLE,
@@ -227,6 +227,15 @@ export function SequenceDiagram({ state, speed = 1, playKey }: Props) {
 
           {/* 왕복 고리 (1 RTT) */}
           {state.rttLoop && segments[0] && <RttLoop seg={segments[0]} label={state.rttLoop} reduce={!!reduce} />}
+
+          {/* 상태 알약이 바뀌는 기기 바닥의 물결 (Phase 시작 상태 그대로면 없음) */}
+          {landed &&
+            actors.map((a) => {
+              const st = nowStates[a.id]
+              const base = state.states[a.id]
+              if (!st || (base && signKey(st) === signKey(base))) return null
+              return <FloorRipple key={`${run.key}-${a.id}-${signKey(st)}`} x={a.wx} y={a.wy} color={PILL_TONES[SIGN_TONE[st.tone ?? 'state']].fg} />
+            })}
 
           {/* 기기 블록 (먼 것부터). 처음에는 살짝 위에서 내려앉는다 */}
           {actors
