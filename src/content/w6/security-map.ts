@@ -134,7 +134,7 @@ export const securityMap: Step = {
         nodes: ROUTE,
         links: ROUTE_LINKS,
         tags: THREATS,
-        beats: [...tagBeats(DEFENSES, 'defense'), { kind: 'zone', id: 'tls-zone', node: 'network', label: 'TLS가 지키는 구간' }],
+        beats: [...tagBeats(DEFENSES, 'defense'), { kind: 'zone', id: 'tls-zone', nodes: ['network'], label: 'TLS가 지키는 구간' }],
         notes: [{ text: 'TLS(HTTPS)는 네트워크 구간만 지킨다', after: 'tls-zone' }],
       }),
     },

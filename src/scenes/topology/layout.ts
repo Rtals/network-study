@@ -10,6 +10,7 @@ import type { FlowTone, TagTone, TopoNode, TopoNodeKind, TopologyState } from '.
 export const NODE_STYLE: Record<TopoNodeKind, { glyph: GlyphKind; color: BlockColor; h: number }> = {
   browser: { glyph: 'browser', color: 'violet', h: 60 },
   network: { glyph: 'wifi', color: 'yellow', h: 52 },
+  isp: { glyph: 'globe', color: 'blue', h: 56 },
   server: { glyph: 'server', color: 'blue', h: 70 },
   auth: { glyph: 'shield', color: 'orange', h: 62 },
   db: { glyph: 'db', color: 'green', h: 70 },
@@ -121,8 +122,8 @@ export function overviewBox(state: TopologyState): Box {
   }
   for (const b of state.beats) {
     if (b.kind !== 'zone') continue
-    const n = byId.get(b.node)
-    if (n) pts.push(iso(n.wx + TILE * 1.05, n.wy + TILE * 1.05), iso(n.wx - TILE * 1.05, n.wy + TILE * 1.05))
+    const ns = b.nodes.map((id) => byId.get(id)).filter((n): n is LaidNode => !!n)
+    if (ns.length) pts.push(...zoneCorners(ns))
   }
   return { ...cameraFor(boundsOf(pts, 50)) }
 }
@@ -175,4 +176,14 @@ export function flowKeyframes(pts: Pt[], visible: boolean[], totalMs: number, fa
     op: frames.map((k) => k.o),
     times: frames.map((k) => Math.min(1, k.t)),
   }
+}
+
+/** 구역 바닥의 네 모서리 (화면 좌표): 노드들을 감싸는 월드 직사각형 + 여유 */
+export function zoneCorners(ns: LaidNode[]): Pt[] {
+  const r = TILE * 1.05
+  const x0 = Math.min(...ns.map((n) => n.wx)) - r
+  const x1 = Math.max(...ns.map((n) => n.wx)) + r
+  const y0 = Math.min(...ns.map((n) => n.wy)) - r
+  const y1 = Math.max(...ns.map((n) => n.wy)) + r
+  return [iso(x0, y0), iso(x1, y0), iso(x1, y1), iso(x0, y1)]
 }

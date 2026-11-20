@@ -4,6 +4,7 @@ import type { StageNote } from '../sequence/types'
 export type TopoNodeKind =
   | 'browser'
   | 'network'
+  | 'isp'
   | 'server'
   | 'auth'
   | 'db'
@@ -28,7 +29,13 @@ export type TopoNode = {
 }
 
 /** 연결선. danger면 빨간 점선 (공격자 쪽으로 새는 길 등) */
-export type TopoLink = { from: string; to: string; style?: 'normal' | 'danger' }
+export type TopoLink = {
+  from: string
+  to: string
+  style?: 'normal' | 'danger'
+  /** 양쪽 화살촉 (기본: normal은 양쪽, danger는 한쪽) */
+  both?: boolean
+}
 
 /**
  * 알약 색의 뜻.
@@ -47,8 +54,8 @@ export type TopoBeat =
   | { kind: 'flow'; id: string; path: string[]; label: string; detail?: string; tone?: FlowTone }
   /** 한 노드에 알약을 차례로 붙인다 */
   | { kind: 'tags'; id: string; tags: TopoTag[] }
-  /** 노드 둘레 바닥에 점선 구역을 그린다 (예: TLS가 지키는 구간) */
-  | { kind: 'zone'; id: string; node: string; label: string }
+  /** 노드들(레인 위 이웃한 노드 하나 이상) 둘레 바닥에 점선 구역을 그린다 (예: TLS가 지키는 구간) */
+  | { kind: 'zone'; id: string; nodes: string[]; label: string }
 
 export type TopologyState = {
   kind: 'topology'

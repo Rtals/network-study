@@ -3,14 +3,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useStudyStore } from '../../store/useStudyStore'
 import { highlightColors } from '../../theme'
 import { boxString } from '../iso/camera'
-import { EASE, ENTER, INK, MONO, SANS, TAG, TILE } from '../iso/constants'
+import { EASE, ENTER, INK, MONO, SANS, TAG } from '../iso/constants'
 import { PILL_TONES, roundedPath } from '../iso/draw'
-import { estimateTextWidth, iso, type Pt } from '../iso/geometry'
+import { estimateTextWidth } from '../iso/geometry'
 import { FloorRipple, IsoArrow, IsoGrid, IsoNode, IsoStyles, PacketDot, Pill, PillBox, Shadow } from '../iso/primitives'
 import { StageTools } from '../iso/StageTools'
 import { usePan } from '../iso/usePan'
 import { DROP_MS } from '../sequence/timeline'
-import { cameraBox, FLOAT, FLOW_STYLE, flowKeyframes, flowPoints, layoutNodes, NODE_STYLE, portWorld, TAG_TONE, tagSlot, type LaidNode } from './layout'
+import { cameraBox, FLOAT, FLOW_STYLE, flowKeyframes, flowPoints, layoutNodes, zoneCorners, NODE_STYLE, portWorld, TAG_TONE, tagSlot, type LaidNode } from './layout'
 import { beatMs, finalStep, hasEnded, hasStarted, noteVisible, stepDelay, TAG_MS } from './timeline'
 import type { FlowTone, TopoBeat, TopoTag, TopologyState } from './types'
 
@@ -118,9 +118,11 @@ export function TopologyDiagram({ state, speed = 1, playKey }: Props) {
           <IsoGrid cx={0} cy={-(Math.max(0, ...nodes.map((n) => n.t)) / 2)} />
 
           {/* 바닥 구역 */}
-          {state.beats.map((b, k) =>
-            b.kind === 'zone' && hasStarted(s, k) && byId.get(b.node) ? <Zone key={`${run.key}-${b.id}`} n={byId.get(b.node)!} label={b.label} /> : null,
-          )}
+          {state.beats.map((b, k) => {
+            if (b.kind !== 'zone' || !hasStarted(s, k)) return null
+            const ns = b.nodes.map((id) => byId.get(id)).filter((n): n is LaidNode => !!n)
+            return ns.length ? <Zone key={`${run.key}-${b.id}`} ns={ns} label={b.label} /> : null
+          })}
 
           {/* 연결선 */}
           {state.links.map((l) => {
@@ -132,7 +134,7 @@ export function TopologyDiagram({ state, speed = 1, playKey }: Props) {
                 <IsoArrow
                   from={portWorld(a, { x: b.wx, y: b.wy })}
                   to={portWorld(b, { x: a.wx, y: a.wy })}
-                  both={l.style !== 'danger'}
+                  both={l.both ?? l.style !== 'danger'}
                   danger={l.style === 'danger'}
                 />
               </motion.g>
@@ -280,9 +282,8 @@ function FlowPill({ label, detail, tone }: { label: string; detail?: string; ton
  * 노드 둘레 바닥의 점선 구역 (예: TLS가 지키는 구간). 주변이 알약으로 붐비므로 이름은 무대에 따로 쓰지 않고
  * 설명 칩과 화면 낭독기 요약으로 전한다.
  */
-function Zone({ n, label }: { n: LaidNode; label: string }) {
-  const r = TILE * 1.05
-  const corners: Pt[] = [iso(n.wx - r, n.wy - r), iso(n.wx + r, n.wy - r), iso(n.wx + r, n.wy + r), iso(n.wx - r, n.wy + r)]
+function Zone({ ns, label }: { ns: LaidNode[]; label: string }) {
+  const corners = zoneCorners(ns)
   return (
     <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={ENTER} aria-label={label}>
       <path d={roundedPath(corners, 24)} fill="#cfe3b2" fillOpacity={0.4} stroke="#2f7a3d" strokeWidth={2.2} strokeDasharray="8 6" />

@@ -17,6 +17,7 @@ export type GlyphKind =
   | 'elevator'
   | 'clipboard'
   | 'person'
+  | 'globe'
 
 const f = (n: number) => n.toFixed(1)
 const FILL = { fill: '#ffffff', fillOpacity: 0.55 }
@@ -126,6 +127,13 @@ const SHAPES: Record<GlyphKind, ReactNode> = {
       <rect x={-12} y={-11} width={24} height={26} rx={3.5} {...FILL} />
       <rect x={-5.5} y={-14.5} width={11} height={6} rx={1.8} fill="#ffffff" />
       <path d="M-6.5 -2h13M-6.5 3.5h13M-6.5 9h8" strokeWidth={2.2} />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx={0} cy={0} r={13} {...FILL} />
+      <ellipse cx={0} cy={0} rx={5.5} ry={13} strokeWidth={2} />
+      <path d="M-13 0h26M-11 -6.5h22M-11 6.5h22" strokeWidth={2} />
     </>
   ),
   person: (

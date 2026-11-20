@@ -21,7 +21,7 @@ describe('6-1 장면 데이터', () => {
       for (const b of st.beats) {
         if (b.kind === 'flow') for (const id of b.path) expect(ids.has(id), id).toBe(true)
         if (b.kind === 'tags') for (const t of b.tags) expect(ids.has(t.node), t.node).toBe(true)
-        if (b.kind === 'zone') expect(ids.has(b.node)).toBe(true)
+        if (b.kind === 'zone') for (const id of b.nodes) expect(ids.has(id)).toBe(true)
       }
     }
   })
