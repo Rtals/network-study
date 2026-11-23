@@ -215,3 +215,10 @@ describe('6-6 TLS 1.3 Handshake 장면', () => {
     expect(tlsHandshake.phases[5].body).toContain('60ms')
   })
 })
+
+describe('이동 속도', () => {
+  it('sequence 패킷은 도착 뒤에도 남아 있으므로 공통 속도 대신 고정 1초로 건넌다', () => {
+    for (const st of [phase(1), phase(2), phase(3)]) for (const b of buildBeats(st)) if (b.kind === 'travel') expect(b.ms).toBe(TRAVEL_MS)
+    expect(TRAVEL_MS).toBe(1000)
+  })
+})

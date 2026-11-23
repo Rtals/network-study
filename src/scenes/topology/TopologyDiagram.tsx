@@ -186,7 +186,7 @@ export function TopologyDiagram({ state, speed = 1, playKey }: Props) {
           {landed &&
             state.beats.map((b, k) =>
               b.kind === 'flow' && hasStarted(s, k) && !hasEnded(s, k) ? (
-                <Flow key={`${run.key}-${b.id}`} beat={b} nodes={nodes} ms={beatMs(b) / speed} reduce={!!reduce} />
+                <Flow key={`${run.key}-${b.id}`} beat={b} nodes={nodes} ms={beatMs(b, state) / speed} reduce={!!reduce} />
               ) : null,
             )}
         </g>

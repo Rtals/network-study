@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { weeks } from '../../content'
 import { securityMap } from '../../content/w6/security-map'
 import { GAP_MS, LEAD_MS, READ_MS } from '../sequence/timeline'
-import { FADE_MS, flowKeyframes, flowPoints, layoutNodes, overviewBox } from './layout'
-import { beatMs, finalStep, HOP_MS, noteVisible, stepDelay, TAG_MS, TAGS_TAIL_MS, timelineMs } from './timeline'
+import { FADE_MS, flowKeyframes, flowMs, flowPoints, flowSegments, layoutNodes, overviewBox } from './layout'
+import { FLOW_SPEED } from '../iso/constants'
+import { beatMs, finalStep, noteVisible, stepDelay, TAG_MS, TAGS_TAIL_MS, timelineMs } from './timeline'
 import { isTopologyState, type TopologyState } from './types'
 
 const phases = securityMap.phases.map((p) => p.state as TopologyState)
@@ -50,11 +51,36 @@ describe('6-1 장면 데이터', () => {
 })
 
 describe('타임라인', () => {
-  it('비트 시간: 흐름은 칸 수 × HOP, 알약은 개수 × TAG + 꼬리', () => {
+  it('비트 시간: 흐름은 화면 거리 ÷ 공통 속도, 알약은 개수 × TAG + 꼬리', () => {
     const [req] = phases[1].beats
-    expect(beatMs(req)).toBe(4 * HOP_MS)
+    const nodes = layoutNodes(phases[1].nodes)
+    expect(beatMs(req, phases[1])).toBe(flowMs(nodes, ['browser', 'network', 'server', 'auth', 'db']))
     const threat = phases[2].beats[0]
-    expect(beatMs(threat)).toBe(3 * TAG_MS + TAGS_TAIL_MS)
+    expect(beatMs(threat, phases[2])).toBe(3 * TAG_MS + TAGS_TAIL_MS)
+  })
+
+  it('기준 속도: 6-4 1단계(지문)의 입력 → SHA-256 한 칸은 약 0.65초', async () => {
+    const { hashSignature } = await import('../../content/w6/hash-signature')
+    const st = hashSignature.phases[0].state as TopologyState
+    const hop = st.beats[0]
+    expect(beatMs(hop, st)).toBeGreaterThan(640)
+    expect(beatMs(hop, st)).toBeLessThan(660)
+  })
+
+  it('모든 topology Step의 패킷은 같은 화면 속도로 움직인다', () => {
+    const steps = weeks.flatMap((w) => w.steps)
+    for (const step of steps)
+      for (const p of step.phases) {
+        if (!isTopologyState(p.state)) continue
+        const st = p.state
+        const nodes = layoutNodes(st.nodes)
+        for (const b of st.beats) {
+          if (b.kind !== 'flow') continue
+          const { pts, visible } = flowPoints(nodes, b.path)
+          const d = flowSegments(pts, visible).reduce((a, c) => a + c, 0)
+          expect(Math.abs(d / beatMs(b, st) - FLOW_SPEED)).toBeLessThan(0.005)
+        }
+      }
   })
 
   it('설명 칩이 붙은 비트 뒤에는 읽을 시간만큼 쉰다', () => {
@@ -65,7 +91,8 @@ describe('타임라인', () => {
   })
 
   it('요청 경로 Phase 전체 시간 = 시작 쉼 + 요청 + 쉼 + 응답 + 마지막 설명 읽기', () => {
-    expect(timelineMs(phases[1])).toBe(LEAD_MS + 4 * HOP_MS + GAP_MS + 4 * HOP_MS + READ_MS)
+    const [req, res] = phases[1].beats
+    expect(timelineMs(phases[1])).toBe(LEAD_MS + beatMs(req, phases[1]) + GAP_MS + beatMs(res, phases[1]) + READ_MS)
   })
 
   it('설명 칩은 after 비트가 끝난 뒤에 나타난다', () => {

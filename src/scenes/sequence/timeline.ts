@@ -1,6 +1,10 @@
 import type { ActorState, SeqEffect, SeqMessage, SequenceState } from './types'
 
-/** 패킷이 연결선을 건너는 시간 */
+/**
+ * 패킷이 연결선을 건너는 시간 (고정).
+ * sequence 장면은 패킷이 도착한 뒤에도 기기 옆에 남아 있어서, topology의 공통 속도(FLOW_SPEED) 대신
+ * 예전 속도를 그대로 쓴다.
+ */
 export const TRAVEL_MS = 1000
 /** 보내지 않음(withheld) 연출 시간 */
 export const WITHHELD_MS = 700

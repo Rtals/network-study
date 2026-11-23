@@ -1,5 +1,5 @@
 import { cameraFor, type Box } from '../iso/camera'
-import { TAG, TILE } from '../iso/constants'
+import { FLOW_SPEED, HIDDEN_HOP_PX, TAG, TILE } from '../iso/constants'
 import type { BlockColor, PillTone } from '../iso/draw'
 import { boundsOf, boxPoints, estimateTextWidth, iso, type Pt } from '../iso/geometry'
 import type { GlyphKind } from '../iso/glyphs'
@@ -148,11 +148,7 @@ export const FADE_MS = 180
  * (출발 블록, 중간에 지나는 블록, 끝 블록 모두 같은 규칙).
  */
 export function flowKeyframes(pts: Pt[], visible: boolean[], totalMs: number, fadeMs = FADE_MS) {
-  const seg: number[] = []
-  for (let i = 1; i < pts.length; i++) {
-    const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y)
-    seg.push(visible[i - 1] ? d : Math.min(d, 60))
-  }
+  const seg = flowSegments(pts, visible)
   const total = seg.reduce((a, b) => a + b, 0) || 1
   const fade = Math.min(0.45, fadeMs / Math.max(1, totalMs))
   const frames: { t: number; x: number; y: number; o: number }[] = []
@@ -194,4 +190,21 @@ export function zoneCorners(ns: LaidNode[]): Pt[] {
   const y0 = Math.min(...ns.map((n) => n.wy)) - r
   const y1 = Math.max(...ns.map((n) => n.wy)) + r
   return [iso(x0, y0), iso(x1, y0), iso(x1, y1), iso(x0, y1)]
+}
+
+/** 구간별 이동 거리 (화면 단위). 블록 안을 지나는 구간은 HIDDEN_HOP_PX로 친다 */
+export function flowSegments(pts: Pt[], visible: boolean[]): number[] {
+  const seg: number[] = []
+  for (let i = 1; i < pts.length; i++) {
+    const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y)
+    seg.push(visible[i - 1] ? d : Math.min(d, HIDDEN_HOP_PX))
+  }
+  return seg
+}
+
+/** 패킷이 path를 따라가는 시간 (배속 적용 전) = 거리 ÷ 공통 속도 */
+export function flowMs(nodes: LaidNode[], path: string[]): number {
+  const { pts, visible } = flowPoints(nodes, path)
+  const d = flowSegments(pts, visible).reduce((a, b) => a + b, 0)
+  return Math.max(1, Math.round(d / FLOW_SPEED))
 }

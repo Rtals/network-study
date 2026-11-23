@@ -47,3 +47,13 @@ export const TAG = {
 export const EASE: [number, number, number, number] = [0.2, 0.7, 0.2, 1]
 /** 등장 애니메이션 (모든 상자·표지·패킷이 같은 속도와 감속을 쓴다) */
 export const ENTER: Transition = { duration: 0.36, ease: EASE }
+
+/**
+ * 패킷이 화면 위를 움직이는 속도 (viewBox 단위 / ms). 도착하면 블록 안으로 사라지는 장면(topology)이 모두 같은 속도로 움직인다.
+ * 도착 뒤에도 패킷이 남아 있는 sequence 장면(3-4, 6-6)은 고정 시간(sequence/timeline.ts의 TRAVEL_MS)을 쓴다.
+ * 기준: 6-4 1단계(지문)에서 입력 → SHA-256 한 칸(화면 약 136px)을 0.65초에 건너는 속도.
+ * 이동 시간 = 화면 거리 ÷ FLOW_SPEED (topology/layout.ts의 flowMs)
+ */
+export const FLOW_SPEED = 0.21
+/** 패킷이 블록 안을 지나는(보이지 않는) 구간은 이만큼의 거리로 친다 */
+export const HIDDEN_HOP_PX = 60
