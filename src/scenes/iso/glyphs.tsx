@@ -18,6 +18,10 @@ export type GlyphKind =
   | 'clipboard'
   | 'person'
   | 'globe'
+  | 'hash'
+  | 'fingerprint'
+  | 'key'
+  | 'stamp'
 
 const f = (n: number) => n.toFixed(1)
 const FILL = { fill: '#ffffff', fillOpacity: 0.55 }
@@ -134,6 +138,34 @@ const SHAPES: Record<GlyphKind, ReactNode> = {
       <circle cx={0} cy={0} r={13} {...FILL} />
       <ellipse cx={0} cy={0} rx={5.5} ry={13} strokeWidth={2} />
       <path d="M-13 0h26M-11 -6.5h22M-11 6.5h22" strokeWidth={2} />
+    </>
+  ),
+  hash: (
+    <>
+      <rect x={-14} y={-14} width={28} height={28} rx={5} {...FILL} />
+      <path d="M-4 -8.5l-2 17M4.5 -8.5l-2 17M-8.5 -3.5h17M-9.5 3.5h17" strokeWidth={2.4} />
+    </>
+  ),
+  fingerprint: (
+    <>
+      <path d="M-9 9c-2.5-3.5-3.5-7-3-11 .8-6 6-10 12-10s11.2 4 12 10c.4 3-.3 6-1.5 8.5" strokeWidth={2.2} />
+      <path d="M-4.5 11c-2.5-3-3.5-6.5-3-9.5.6-3.8 3.7-6.3 7.5-6.3s6.9 2.5 7.5 6.3c.4 3-.4 6.3-2.5 9.5" strokeWidth={2.2} />
+      <path d="M0.5 12c-1.6-3-2.3-6-1.8-9" strokeWidth={2.2} />
+      <path d="M0 -0.5c1.8 0 3 1.4 3 3.3 0 3.2-1 6.3-3 9" strokeWidth={2.2} />
+    </>
+  ),
+  key: (
+    <>
+      <circle cx={-6} cy={0} r={7} {...FILL} />
+      <circle cx={-6} cy={0} r={2.2} fill={INK} stroke="none" />
+      <path d="M1 0h14M10 0v5M14 0v4" strokeWidth={2.6} />
+    </>
+  ),
+  stamp: (
+    <>
+      <path d="M-4.5 -2.5v-5.5a4.5 4.5 0 1 1 9 0v5.5" {...FILL} />
+      <path d="M-13 3.5c0-3.3 2.7-6 6-6h14c3.3 0 6 2.7 6 6v3h-26z" {...FILL} />
+      <path d="M-12 12h24" strokeWidth={2.8} />
     </>
   ),
   person: (

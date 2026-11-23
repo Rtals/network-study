@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, useLocation } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { HASH_EXAMPLES } from '../lib/hash'
 import { useStudyStore } from '../store/useStudyStore'
 import { AppRoutes } from './routes'
 
@@ -257,6 +258,18 @@ describe('6-3 대칭키와 공개키', () => {
     expect(phaseHeading()).toContain('처음 만난 상대에게 열쇠를 어떻게 건네나')
     expect(screen.getByRole('img', { name: /경로 다이어그램: 클라이언트, 네트워크, 서버, 도둑/ })).toBeInTheDocument()
     expect(screen.getByText('2 / 7')).toBeInTheDocument()
+  })
+})
+
+describe('6-4 해시와 전자서명', () => {
+  it('직접 해보기: 실제 SHA-256을 계산하고, 같은 입력이면 같은 해시', async () => {
+    renderAt('/w6/hash-signature/1')
+    fireEvent.click(screen.getByRole('button', { name: '직접 해보기' }))
+    expect(await screen.findByLabelText(`입력 A의 SHA-256: ${HASH_EXAMPLES.inu1234}`)).toBeInTheDocument()
+    expect(await screen.findByLabelText(`입력 B의 SHA-256: ${HASH_EXAMPLES.inu1235}`)).toBeInTheDocument()
+    expect(screen.getByText(/256비트 중 \d+비트가 다르다/)).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('입력 B'), { target: { value: 'inu1234' } })
+    expect(await screen.findByText(/두 해시가 같다/)).toBeInTheDocument()
   })
 })
 
