@@ -138,7 +138,7 @@ Phase 목록은 초안이다. 구현 전에 해당 페이지를 다시 읽고 Ph
 | 6-4 | 해시와 전자서명 | 10 | topology | 해시 = 지문 → 한 글자 차이(눈사태) → 네 가지 성질 → 서명 만들기 → 서명 검증 → 바꾸면 들킨다 → 해시·HMAC·서명 비교 | 🧪 두 입력의 실제 SHA-256 비교 (비트 차이) |
 | 6-5 ★ | 인증서와 신뢰 체인 | 11–12 | topology 💡 | 디지털 여권 → 신뢰의 위임 → 신뢰 체인(Root → Intermediate → Leaf) → 검증 ①② 이름·기간 → ③④ 서명 따라 올라가기 → ⑤⑥ Root·폐기 → 착한 사이트 보증 ✕ | QC Q3 (W4 4-12에서 재사용) |
 | 6-6 ★ | TLS 1.3 Handshake | 13–14 | sequence 💡 | TCP 다음 → ClientHello(암호 목록·key_share·SNI) → ServerHello·키 합의(ECDHE) → Certificate·CertificateVerify → Finished + 첫 HTTP (1-RTT) → 첫 요청까지 2 RTT | 확인 문제 (QC Q2는 6-2·6-7) |
-| 6-7 ★ | TLS가 지켜 주는 것과 인증서 오류 | 15 | compare | 지켜 준다 / 지켜 주지 않는다 → HSTS → 인증서 오류 4종(원인·조치) | QC Q2 |
+| 6-7 ★ | TLS의 한계와 인증서 오류 | 15 | topology | 지켜 준다(길 위) → 못 지킨다(길의 양 끝) → HSTS(SSL Strip 차단) → 인증서 오류 ① 날짜·이름 → ② 체인·Mixed Content | QC Q2 |
 
 **B. 신원 — 인증**
 

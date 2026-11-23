@@ -292,6 +292,17 @@ describe('6-6 TLS 1.3 Handshake', () => {
   })
 })
 
+describe('6-7 TLS의 한계와 인증서 오류', () => {
+  it('인증서 오류 Phase: 경고 이름이 차례로 뜬다', () => {
+    vi.useFakeTimers()
+    renderAt('/w6/tls-limits/4')
+    expect(phaseHeading()).toContain('인증서 오류 ① 날짜와 이름')
+    const stage = () => within(screen.getByRole('img', { name: /경로 다이어그램/ }))
+    for (let t = 0; t < 6000; t += 200) act(() => vi.advanceTimersByTime(200))
+    expect(stage().getByText('NET::ERR_CERT_DATE_INVALID')).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')
