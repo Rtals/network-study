@@ -22,6 +22,8 @@ export type GlyphKind =
   | 'fingerprint'
   | 'key'
   | 'stamp'
+  | 'certificate'
+  | 'seal'
 
 const f = (n: number) => n.toFixed(1)
 const FILL = { fill: '#ffffff', fillOpacity: 0.55 }
@@ -166,6 +168,21 @@ const SHAPES: Record<GlyphKind, ReactNode> = {
       <path d="M-4.5 -2.5v-5.5a4.5 4.5 0 1 1 9 0v5.5" {...FILL} />
       <path d="M-13 3.5c0-3.3 2.7-6 6-6h14c3.3 0 6 2.7 6 6v3h-26z" {...FILL} />
       <path d="M-12 12h24" strokeWidth={2.8} />
+    </>
+  ),
+  certificate: (
+    <>
+      <rect x={-14} y={-13} width={24} height={26} rx={3} {...FILL} />
+      <path d="M-9 -6h14M-9 -1h10" strokeWidth={2.2} />
+      <circle cx={8} cy={6} r={5.5} {...FILL} />
+      <path d="M5 10.5l-1.5 6 4.5-2.5 4.5 2.5-1.5-6" strokeWidth={2} />
+    </>
+  ),
+  seal: (
+    <>
+      <circle cx={0} cy={-3} r={10} {...FILL} />
+      <circle cx={0} cy={-3} r={5} strokeWidth={2.2} />
+      <path d="M-6 5l-3 10 5-2.5 4 3.5M6 5l3 10-5-2.5-4 3.5" strokeWidth={2.2} />
     </>
   ),
   person: (

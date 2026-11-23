@@ -153,3 +153,17 @@ describe('6-3 대칭키와 공개키 장면', () => {
     expect(pair?.kind === 'tags' && pair.tags).toEqual(lockBox.tags)
   })
 })
+
+describe('6-5 인증서와 신뢰 체인 장면', () => {
+  it('검증 1~6이 순서대로 붙고, 다음 Phase는 앞에서 통과한 것을 이어받는다', async () => {
+    const { certificateChain } = await import('../../content/w6/certificate-chain')
+    const sts = certificateChain.phases.map((p) => p.state as TopologyState)
+    const checksIn = (st: TopologyState) =>
+      st.beats.flatMap((b) => (b.kind === 'tags' ? b.tags : [])).map((t) => t.text).filter((t) => /^\d\. /.test(t))
+    expect(checksIn(sts[3]).map((t) => t[0])).toEqual(['1', '2'])
+    expect(checksIn(sts[4]).map((t) => t[0])).toEqual(['3', '4'])
+    expect(checksIn(sts[5]).map((t) => t[0])).toEqual(['5', '6'])
+    expect((sts[4].tags ?? []).map((t) => t.text[0])).toEqual(['1', '2'])
+    expect((sts[5].tags ?? []).map((t) => t.text[0])).toEqual(['1', '2', '3', '4'])
+  })
+})
