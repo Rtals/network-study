@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { weeks } from '../../content'
 import { securityMap } from '../../content/w6/security-map'
 import { GAP_MS, LEAD_MS, READ_MS } from '../sequence/timeline'
 import { FADE_MS, flowKeyframes, flowPoints, layoutNodes, overviewBox } from './layout'
@@ -110,5 +111,45 @@ describe('배치', () => {
     expect(k.times.at(-1)).toBe(1)
     // 시각은 앞으로만 간다
     for (let i = 1; i < k.times.length; i++) expect(k.times[i]).toBeGreaterThan(k.times[i - 1])
+  })
+})
+
+describe('모든 topology Step 데이터', () => {
+  const steps = weeks.flatMap((w) => w.steps)
+  const cases = steps.flatMap((step) =>
+    step.phases.flatMap((p, i) => (isTopologyState(p.state) ? [{ name: `${step.no} Phase ${i + 1}`, st: p.state }] : [])),
+  )
+
+  it.each(cases)('$name: 연결선·흐름·알약·구역은 있는 노드만, 비트 id는 겹치지 않고, 설명 칩 after는 그 Phase의 비트', ({ st }) => {
+    const ids = new Set(st.nodes.map((n) => n.id))
+    for (const l of st.links) expect([ids.has(l.from), ids.has(l.to)]).toEqual([true, true])
+    for (const t of st.tags ?? []) expect(ids.has(t.node), t.node).toBe(true)
+    for (const b of st.beats) {
+      if (b.kind === 'flow') {
+        expect(b.path.length).toBeGreaterThanOrEqual(2)
+        for (const id of b.path) expect(ids.has(id), id).toBe(true)
+      }
+      if (b.kind === 'tags') for (const t of b.tags) expect(ids.has(t.node), t.node).toBe(true)
+      if (b.kind === 'zone') for (const id of b.nodes) expect(ids.has(id), id).toBe(true)
+    }
+    const beatIds = st.beats.map((b) => b.id)
+    expect(new Set(beatIds).size).toBe(beatIds.length)
+    for (const n of st.notes ?? []) if (n.after) expect(beatIds).toContain(n.after)
+  })
+})
+
+describe('6-3 대칭키와 공개키 장면', () => {
+  it('7개 Phase. 도둑은 열쇠 전달·공개키·잠가 보내기·과거 대화·남은 문제에만 나온다', async () => {
+    const { symmetricPublicKey } = await import('../../content/w6/symmetric-public-key')
+    const sts = symmetricPublicKey.phases.map((p) => p.state as TopologyState)
+    expect(sts).toHaveLength(7)
+    expect(sts.map((s) => s.nodes.some((n) => n.id === 'thief'))).toEqual([false, true, true, true, false, true, true])
+  })
+
+  it('잠가 보내기는 앞 Phase에서 받은 열쇠 한 쌍을 이어받아 시작한다', async () => {
+    const { symmetricPublicKey } = await import('../../content/w6/symmetric-public-key')
+    const [, , pub, lockBox] = symmetricPublicKey.phases.map((p) => p.state as TopologyState)
+    const pair = pub.beats.find((b) => b.id === 'pair')
+    expect(pair?.kind === 'tags' && pair.tags).toEqual(lockBox.tags)
   })
 })

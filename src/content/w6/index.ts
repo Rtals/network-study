@@ -1,6 +1,7 @@
 import type { Week } from '../types'
 import { httpVsHttps } from './http-vs-https'
 import { securityMap } from './security-map'
+import { symmetricPublicKey } from './symmetric-public-key'
 
 export const w6: Week = {
   id: 'w6',
@@ -10,5 +11,5 @@ export const w6: Week = {
   question: 'Week 5의 API는 누구든 호출할 수 있었다 → 누가, 어떤 통로로, 무엇을 하는지 통제한다',
   objectives: [],
   source: 'Week06_Authentication_Web_Security_Revised.pdf',
-  steps: [securityMap, httpVsHttps],
+  steps: [securityMap, httpVsHttps, symmetricPublicKey],
 }

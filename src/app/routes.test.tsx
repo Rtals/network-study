@@ -251,6 +251,15 @@ describe('6-2 HTTP는 엽서, HTTPS는 봉투', () => {
   })
 })
 
+describe('6-3 대칭키와 공개키', () => {
+  it('URL로 Phase를 바로 열고, 도둑이 있는 경로 다이어그램이 나온다', () => {
+    renderAt('/w6/symmetric-public-key/2')
+    expect(phaseHeading()).toContain('처음 만난 상대에게 열쇠를 어떻게 건네나')
+    expect(screen.getByRole('img', { name: /경로 다이어그램: 클라이언트, 네트워크, 서버, 도둑/ })).toBeInTheDocument()
+    expect(screen.getByText('2 / 7')).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')

@@ -134,7 +134,7 @@ Phase 목록은 초안이다. 구현 전에 해당 페이지를 다시 읽고 Ph
 |---|---|---|---|---|---|
 | 6-1 | 보안의 큰 그림: 회사 건물과 공격 지점 | 5–6, 46 | topology 💡 | 회사 건물 비유(통로·신원·출입증·권한·기록) → 요청 경로 → 구간별 공격 → 구간별 방어 → 빠지면? | |
 | 6-2 ★ | HTTP는 엽서, HTTPS는 봉투 | 7 | topology 💡 | HTTP 엽서 → 엿보기(기밀성 ✕) → 고쳐 쓰기(무결성 ✕) → 사칭(인증 ✕) → HTTPS 봉투(세 공격 모두 막힘) → 세 가지 목표와 기술 | 🧪 HTTP/HTTPS × 엿보기·고쳐 쓰기·사칭 · QC Q2 |
-| 6-3 | 대칭키와 공개키 | 8–9 | sequence 💡 | 대칭키: 같은 열쇠, 키 전달 문제 → 공개키: 열린 자물쇠 → 하이브리드(공개키로 키 공유, 대칭키로 암호화) → Forward Secrecy | |
+| 6-3 | 대칭키와 공개키 | 8–9 | topology 💡 | 대칭키(같은 열쇠) → 열쇠 전달 문제 → 공개키(열린 자물쇠) → 잠가 보내기 → TLS 하이브리드(ECDHE + AES) → Forward Secrecy → 남은 문제(가짜 자물쇠 → 인증서) | |
 | 6-4 | 해시와 전자서명 | 10 | sandbox | 입력 → 해시(지문) → 한 글자 바꾸면 완전히 다른 해시 → 개인키로 서명 → 공개키로 검증 → 해시·HMAC·서명 비교 | 🧪 텍스트 입력 → SHA-256 변화 |
 | 6-5 ★ | 인증서와 신뢰 체인 | 11–12 | flow 💡 | 여권 비유 → Root CA(미리 설치) → Intermediate → 서버 인증서 → 브라우저 검증 6단계 | QC Q3 (W4 4-12에서 재사용) |
 | 6-6 ★ | TLS 1.3 Handshake | 13–14 | sequence 💡 | (TCP 3-way 이후) ClientHello + key_share → ServerHello + 인증서 → CertificateVerify + Finished → Client Finished + HTTP 요청 → 물감 섞기 비유 | QC Q2 |
