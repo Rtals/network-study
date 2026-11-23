@@ -182,3 +182,36 @@ describe('주고받은 메시지 (오른쪽 패널)', () => {
     for (const st of states) for (const r of exchangeRows(st)) expect(r.note, r.label).toBeTruthy()
   })
 })
+
+describe('6-6 TLS 1.3 Handshake 장면', () => {
+  it('6개 Phase가 모두 sequence이고, 설명 칩 after는 그 Phase의 메시지, 메시지마다 뜻풀이가 있다', async () => {
+    const { tlsHandshake } = await import('../../content/w6/tls-handshake')
+    const sts = tlsHandshake.phases.map((p) => p.state as SequenceState)
+    expect(sts).toHaveLength(6)
+    for (const st of sts) {
+      expect(isSequenceState(st)).toBe(true)
+      const ids = st.messages.map((m) => m.id)
+      expect(new Set(ids).size).toBe(ids.length)
+      for (const n of st.notes ?? []) if (n.after) expect(ids).toContain(n.after)
+      for (const r of exchangeRows(st)) expect(r.note, r.label).toBeTruthy()
+    }
+  })
+
+  it('키 합의가 끝나면 양쪽 모두 세션 키 계산, 첫 HTTP를 보내면 암호화 통신', async () => {
+    const { tlsHandshake } = await import('../../content/w6/tls-handshake')
+    const hello = tlsHandshake.phases[2].state as SequenceState
+    const b1 = buildBeats(hello)
+    expect(statesAt(hello, b1, finalStep(b1))).toMatchObject({ client: { label: '세션 키 계산 (ECDHE)' }, server: { label: '세션 키 계산 (ECDHE)' } })
+    const fin = tlsHandshake.phases[4].state as SequenceState
+    const b2 = buildBeats(fin)
+    expect(statesAt(fin, b2, finalStep(b2))).toMatchObject({ client: { label: '암호화 통신' }, server: { label: '암호화 통신' } })
+  })
+
+  it('2 RTT 단계: TCP 3개 + TLS 3개, 본문의 2 RTT·60ms는 connectionCost(30)과 같다', async () => {
+    const { tlsHandshake } = await import('../../content/w6/tls-handshake')
+    const st = tlsHandshake.phases[5].state as SequenceState
+    expect(st.messages.map((m) => m.label.split(' ')[0])).toEqual(['SYN', 'SYN+ACK', 'ACK', 'ClientHello', 'ServerHello', 'Finished'])
+    expect(tlsHandshake.phases[5].body).toContain('2 RTT')
+    expect(tlsHandshake.phases[5].body).toContain('60ms')
+  })
+})

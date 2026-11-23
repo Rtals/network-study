@@ -282,6 +282,16 @@ describe('6-5 인증서와 신뢰 체인', () => {
   })
 })
 
+describe('6-6 TLS 1.3 Handshake', () => {
+  it('URL로 Phase를 열면 연결 다이어그램과 주고받은 메시지 목록', () => {
+    renderAt('/w6/tls-handshake/4')
+    expect(phaseHeading()).toContain('개인키로 진짜 주인임을 증명한다')
+    expect(screen.getByRole('img', { name: /연결 다이어그램: 서버에서 브라우저로 Certificate/ })).toBeInTheDocument()
+    const list = within(screen.getByRole('region', { name: '주고받은 메시지' }))
+    expect(list.getByText('ClientHello')).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')
