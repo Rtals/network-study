@@ -377,6 +377,20 @@ describe('6-13 Cookie 보안 속성', () => {
   })
 })
 
+describe('6-14 JWT 해부', () => {
+  it('직접 해보기: 처음엔 통과, role을 바꾸면 서명 불일치, 다시 발급하면 통과', async () => {
+    renderAt('/w6/jwt-anatomy/1')
+    fireEvent.click(screen.getByRole('button', { name: '직접 해보기' }))
+    expect(await screen.findByText('서버 검증 통과 → 200 OK')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'role을 professor로 (변조)' }))
+    expect(await screen.findByText(/서명 불일치/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '비밀키를 아는 서버가 다시 발급' }))
+    expect(await screen.findByText('서버 검증 통과 → 200 OK')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'exp를 과거로' }))
+    expect(await screen.findByText(/만료/)).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')
