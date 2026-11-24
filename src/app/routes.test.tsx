@@ -303,6 +303,21 @@ describe('6-7 TLS의 한계와 인증서 오류', () => {
   })
 })
 
+describe('6-8 인증과 인가', () => {
+  it('직접 해보기: 카드를 고르고 맞히면 정답과 멈춘 곳이 나온다', () => {
+    renderAt('/w6/authn-authz/1')
+    fireEvent.click(screen.getByRole('button', { name: '직접 해보기' }))
+    fireEvent.click(screen.getByRole('button', { name: '학생 토큰으로 남의 성적 조회' }))
+    fireEvent.click(screen.getByRole('button', { name: '401' }))
+    expect(screen.getByText(/아쉽다. 정답은 403/)).toBeInTheDocument()
+    expect(screen.getByText(/인가에서 멈췄다/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '403' }))
+    expect(screen.getByText(/정답!/)).toBeInTheDocument()
+    const log = screen.getByRole('contentinfo', { name: '이벤트 로그' }).textContent
+    expect(log).toContain('403 Forbidden')
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')

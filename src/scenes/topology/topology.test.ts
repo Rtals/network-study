@@ -194,3 +194,13 @@ describe('6-5 인증서와 신뢰 체인 장면', () => {
     expect((sts[5].tags ?? []).map((t) => t.text[0])).toEqual(['1', '2', '3', '4'])
   })
 })
+
+describe('6-8 인증과 인가 장면', () => {
+  it('401 Phase는 인가·Handler에 닿지 않고, 403 Phase는 인가에서 멈춘다', async () => {
+    const { authnAuthz } = await import('../../content/w6/authn-authz')
+    const flows = (i: number) => (authnAuthz.phases[i].state as TopologyState).beats.flatMap((b) => (b.kind === 'flow' ? [b.path] : []))
+    expect(flows(2)[0]).toEqual(['client', 'authn'])
+    expect(flows(3)[0]).toEqual(['client', 'authn', 'authz'])
+    expect(flows(0)[0]).toEqual(['client', 'authn', 'authz', 'handler'])
+  })
+})
