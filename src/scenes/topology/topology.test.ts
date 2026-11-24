@@ -205,6 +205,18 @@ describe('6-8 인증과 인가 장면', () => {
   })
 })
 
+describe('6-16 Access + Refresh Token 장면', () => {
+  it('재발급은 RT 기록 DB를 거쳐 Rotation하고, 도난 RT는 공격자에게 401로 돌아간다', async () => {
+    const { accessRefresh } = await import('../../content/w6/access-refresh')
+    const flows = (i: number) => (accessRefresh.phases[i].state as TopologyState).beats.flatMap((b) => (b.kind === 'flow' ? [b] : []))
+    expect(flows(2).at(-1)).toMatchObject({ label: '401', tone: 'danger' })
+    expect(flows(3).map((f) => f.path)).toEqual([['client', 'server'], ['server', 'db'], ['server', 'client'], ['client', 'server'], ['server', 'client']])
+    expect(flows(4)[0].path).toEqual(['attacker', 'server'])
+    expect(flows(4).at(-1)).toMatchObject({ path: ['server', 'attacker'], label: '401' })
+    expect(accessRefresh.phases[5].body).toContain('15분 안에')
+  })
+})
+
 describe('6-15 JWT 검증 순서 장면', () => {
   it('Phase마다 멈추는 검문소가 jwt.ts의 verifyPipeline 결과와 같다', async () => {
     const { jwtVerify } = await import('../../content/w6/jwt-verify')

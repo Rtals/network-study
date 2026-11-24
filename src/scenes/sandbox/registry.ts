@@ -7,6 +7,7 @@ import { HashSandbox } from './hash/HashSandbox'
 import { JwtSandbox } from './jwt/JwtSandbox'
 import { JwtVerifySandbox } from './jwtverify/JwtVerifySandbox'
 import { PasswordSandbox } from './password/PasswordSandbox'
+import { TokenSandbox } from './tokens/TokenSandbox'
 import { TotpSandbox } from './totp/TotpSandbox'
 
 /** Step 전용 직접 해보기 화면. 키: "w3/handshake" */
@@ -20,4 +21,5 @@ export const sandboxRegistry: Record<string, ComponentType> = {
   'w6/cookie-attributes': CookieSandbox,
   'w6/jwt-anatomy': JwtSandbox,
   'w6/jwt-verify': JwtVerifySandbox,
+  'w6/access-refresh': TokenSandbox,
 }

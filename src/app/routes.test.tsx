@@ -405,6 +405,21 @@ describe('6-15 JWT 검증 순서', () => {
   })
 })
 
+describe('6-16 Access + Refresh Token', () => {
+  it('시간 슬라이더: 로그아웃 뒤 남은 접근 시간은 Access 수명에 따라 달라진다', async () => {
+    renderAt('/w6/access-refresh/1')
+    fireEvent.click(screen.getByRole('button', { name: '직접 해보기' }))
+    expect(screen.getByText('10분')).toBeInTheDocument()
+    expect(screen.getByText(/60분 · 접근 끊김/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '1일' }))
+    expect(screen.getByText('23시간 40분')).toBeInTheDocument()
+    expect(screen.getByText(/60분 · 로그아웃했지만 AT₁는 아직 유효/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '로그아웃 (RT 삭제)' }))
+    const log = screen.getByRole('contentinfo', { name: '이벤트 로그' }).textContent
+    expect(log).toContain('AT₁ (1일)')
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')
