@@ -344,6 +344,15 @@ describe('6-10 비밀번호 저장', () => {
   })
 })
 
+describe('6-11 로그인 전체 흐름', () => {
+  it('URL로 Phase를 열면 브라우저·API 서버·DB 다이어그램과 핵심 포인트', () => {
+    renderAt('/w6/login-flow/5')
+    expect(phaseHeading()).toContain('출입증만 보낸다')
+    expect(screen.getByRole('img', { name: /경로 다이어그램: 브라우저, API 서버, User DB/ })).toBeInTheDocument()
+    expect(screen.getByText(/비밀번호처럼 보호해야/)).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')
