@@ -46,3 +46,43 @@ export function bitDifference(a: string, b: string): number {
   }
   return count
 }
+
+// ───────────────────────── 6-10 비밀번호 저장 ─────────────────────────
+
+/** p.20 표의 Salt 예시 (Salt는 비밀이 아니며 해시와 함께 저장된다) */
+export const SALT_EXAMPLES = { kim: 'Qx9', lee: 'Lm2p' } as const
+
+/**
+ * Salt + 비밀번호의 실제 SHA-256 (강의자료 p.20의 3e7a… / c81d… 는 설명용 값).
+ * hash.test.ts에서 다시 계산해 맞는지 확인한다.
+ */
+export const SALTED_EXAMPLES = {
+  kim: '5cc5c53c27024300e9e7e1fcb8eb787cb90b086fd4d45a598aaca86370360f12',
+  lee: '91d4495691a7738e9642a344afb35c754030e09163bacdbfe7afa5d3a062cf7c',
+} as const
+
+/** Salt를 앞에 붙여 SHA-256 (빠른 해시 + Salt) */
+export const saltedSha256Hex = (salt: string, password: string) => sha256Hex(salt + password)
+
+/** 무작위 Salt (16진수) */
+export function randomSalt(bytes = 4): string {
+  const a = new Uint8Array(bytes)
+  globalThis.crypto.getRandomValues(a)
+  return [...a].map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+/**
+ * 일부러 느린 해시: PBKDF2-SHA256 (Salt + 여러 번 반복).
+ * 브라우저 기본 암호 기능에는 Argon2id가 없어서, 같은 원리의 PBKDF2로 실제 계산한다 (직접 해보기용).
+ */
+export async function pbkdf2Hex(password: string, salt: string, iterations: number): Promise<string> {
+  const enc = new TextEncoder()
+  const key = await globalThis.crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits'])
+  const bits = await globalThis.crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode(salt), iterations }, key, 256)
+  return [...new Uint8Array(bits)].map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+const SECONDS_PER_YEAR = 365 * 24 * 60 * 60
+
+/** 한 번 대입에 perGuessSec초 걸릴 때 guesses번 대입하는 데 걸리는 해 (p.19: 0.1초 × 10억 = 3년) */
+export const crackYears = (perGuessSec: number, guesses: number) => (perGuessSec * guesses) / SECONDS_PER_YEAR

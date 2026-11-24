@@ -1,7 +1,7 @@
 /// <reference types="node" />
-import { createHash } from 'node:crypto'
+import { createHash, pbkdf2Sync } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
-import { bitDifference, HASH_EXAMPLES, hexDiffMask, sha256Hex, SHA256_HEX_LENGTH, shortHex } from './hash'
+import { bitDifference, crackYears, HASH_EXAMPLES, hexDiffMask, pbkdf2Hex, randomSalt, SALT_EXAMPLES, SALTED_EXAMPLES, saltedSha256Hex, sha256Hex, SHA256_HEX_LENGTH, shortHex } from './hash'
 
 const nodeSha = (s: string) => createHash('sha256').update(s, 'utf8').digest('hex')
 
@@ -37,5 +37,31 @@ describe('해시 (6-4)', () => {
   it('자리별 차이와 줄인 표기', () => {
     expect(hexDiffMask('abcd', 'abed')).toEqual([false, false, true, false])
     expect(shortHex(HASH_EXAMPLES.inu1234)).toBe('5c6d613d…a907d380')
+  })
+})
+
+describe('비밀번호 저장 (6-10)', () => {
+  it('Salt 예시 해시는 실제 SHA-256(salt + 비밀번호)', async () => {
+    expect(SALTED_EXAMPLES.kim).toBe(nodeSha(SALT_EXAMPLES.kim + 'inu1234'))
+    expect(SALTED_EXAMPLES.lee).toBe(nodeSha(SALT_EXAMPLES.lee + 'inu1234'))
+    expect(await saltedSha256Hex('Qx9', 'inu1234')).toBe(SALTED_EXAMPLES.kim)
+  })
+
+  it('같은 비밀번호라도 Salt가 다르면 해시가 다르다', () => {
+    expect(SALTED_EXAMPLES.kim).not.toBe(SALTED_EXAMPLES.lee)
+  })
+
+  it('PBKDF2는 Node crypto와 같은 값, 같은 입력이면 같은 출력', async () => {
+    const node = pbkdf2Sync('inu1234', 'Qx9', 1000, 32, 'sha256').toString('hex')
+    expect(await pbkdf2Hex('inu1234', 'Qx9', 1000)).toBe(node)
+  })
+
+  it('p.19: 0.1초 × 10억 번 ≈ 3년', () => {
+    expect(crackYears(0.1, 1e9)).toBeCloseTo(3.17, 1)
+  })
+
+  it('무작위 Salt는 매번 다르다', () => {
+    expect(randomSalt()).not.toBe(randomSalt())
+    expect(randomSalt(4)).toHaveLength(8)
   })
 })

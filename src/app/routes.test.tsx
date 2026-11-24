@@ -328,6 +328,22 @@ describe('6-9 MFA와 OTP', () => {
   })
 })
 
+describe('6-10 비밀번호 저장', () => {
+  it('직접 해보기: 같은 비밀번호면 SHA-256은 같고, Salt를 넣으면 달라진다', async () => {
+    renderAt('/w6/password-storage/1')
+    fireEvent.click(screen.getByRole('button', { name: '직접 해보기' }))
+    const table = await screen.findByRole('table', { name: '저장 방식별 DB' })
+    await within(table).findByText('느린 해시 + Salt', {}, { timeout: 5000 })
+    const row = (name: string) => within(table).getByText(name).closest('tr')!
+    const cells = (name: string) => [...row(name).querySelectorAll('td')].slice(1).map((td) => td.textContent)
+    const [kim, lee] = cells('SHA-256')
+    expect(kim).toBe(lee)
+    const [sk, sl] = cells('Salt + SHA-256')
+    expect(sk).not.toBe(sl)
+    expect(screen.getByText(/10억 번 대입하려면/)).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')
