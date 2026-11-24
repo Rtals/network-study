@@ -318,6 +318,16 @@ describe('6-8 인증과 인가', () => {
   })
 })
 
+describe('6-9 MFA와 OTP', () => {
+  it('직접 해보기: 앱과 서버 코드가 같고, 앱 시계를 30초 넘게 어긋나게 하면 달라진다', async () => {
+    renderAt('/w6/mfa-otp/1')
+    fireEvent.click(screen.getByRole('button', { name: '직접 해보기' }))
+    expect(await screen.findByText('두 코드가 같다 → 로그인 통과')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText(/앱 시계 어긋남/), { target: { value: '60' } })
+    expect(await screen.findByText('두 코드가 다르다 → 로그인 실패')).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')

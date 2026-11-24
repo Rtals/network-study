@@ -3,6 +3,7 @@ import { AuthSandbox } from './auth/AuthSandbox'
 import { EnvelopeSandbox } from './envelope/EnvelopeSandbox'
 import { HandshakeSandbox } from './handshake/HandshakeSandbox'
 import { HashSandbox } from './hash/HashSandbox'
+import { TotpSandbox } from './totp/TotpSandbox'
 
 /** Step 전용 직접 해보기 화면. 키: "w3/handshake" */
 export const sandboxRegistry: Record<string, ComponentType> = {
@@ -10,4 +11,5 @@ export const sandboxRegistry: Record<string, ComponentType> = {
   'w6/http-vs-https': EnvelopeSandbox,
   'w6/hash-signature': HashSandbox,
   'w6/authn-authz': AuthSandbox,
+  'w6/mfa-otp': TotpSandbox,
 }

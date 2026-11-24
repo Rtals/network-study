@@ -24,6 +24,7 @@ export type GlyphKind =
   | 'stamp'
   | 'certificate'
   | 'seal'
+  | 'phone'
 
 const f = (n: number) => n.toFixed(1)
 const FILL = { fill: '#ffffff', fillOpacity: 0.55 }
@@ -183,6 +184,13 @@ const SHAPES: Record<GlyphKind, ReactNode> = {
       <circle cx={0} cy={-3} r={10} {...FILL} />
       <circle cx={0} cy={-3} r={5} strokeWidth={2.2} />
       <path d="M-6 5l-3 10 5-2.5 4 3.5M6 5l3 10-5-2.5-4 3.5" strokeWidth={2.2} />
+    </>
+  ),
+  phone: (
+    <>
+      <rect x={-9} y={-15} width={18} height={30} rx={4} {...FILL} />
+      <path d="M-3 -11h6" strokeWidth={2} />
+      <circle cx={0} cy={10.5} r={1.6} fill={INK} stroke="none" />
     </>
   ),
   person: (
