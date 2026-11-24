@@ -353,6 +353,15 @@ describe('6-11 로그인 전체 흐름', () => {
   })
 })
 
+describe('6-12 Cookie와 Session', () => {
+  it('번호표 Phase: 세션 저장소가 있는 다이어그램과 Quick Check Q5 핵심 포인트', () => {
+    renderAt('/w6/cookie-session/4')
+    expect(phaseHeading()).toContain('Session ID는 번호표')
+    expect(screen.getByRole('img', { name: /경로 다이어그램: 브라우저, 서버, 세션 저장소/ })).toBeInTheDocument()
+    expect(screen.getByText(/Quick Check Q5/)).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')

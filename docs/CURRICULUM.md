@@ -153,7 +153,7 @@ Phase 목록은 초안이다. 구현 전에 해당 페이지를 다시 읽고 Ph
 
 | # | Step | p. | 장면 | 하단 Phase 순서 | 직접 해보기 / 퀴즈 |
 |---|---|---|---|---|---|
-| 6-12 ★ | Cookie와 Session | 22–23 | sequence 💡 | Set-Cookie → 브라우저가 자동 첨부(편리함·위험) → 세탁소 번호표(정보는 서버 장부) → 로그아웃 = 장부에서 삭제 | QC Q5 |
+| 6-12 ★ | Cookie와 Session | 22–23 | topology 💡 | Set-Cookie → 자동 첨부(편리함) → 자동 첨부의 위험(CSRF) → 세탁소 번호표(정보는 서버 장부) → 로그아웃 = 장부에서 삭제 → 여러 서버 = 공유 저장소 | QC Q5 |
 | 6-13 ★ | Cookie 보안 속성 | 24 | sandbox | HttpOnly → Secure → SameSite(Strict/Lax/None) → Max-Age·Domain | 🧪 속성 토글 → XSS·도청·CSRF 통과 여부 · QC Q6 |
 | 6-14 ★ | 토큰 방식과 JWT 해부 | 25–27, 29 | anatomy 💡 | 세션(서버가 기억) vs 토큰(스스로 증명) → header.payload.signature → Base64URL은 인코딩일 뿐 → payload 변조 → 서명 불일치 → 넣으면 안 되는 것 | 🧪 payload 수정 → 검증 실패 · QC Q7 |
 | 6-15 | 서버의 JWT 검증 순서 | 28 | flow | 형식 → 알고리즘 고정 → 서명 → 시간 → 발급자·대상 → 인가, 실제 취약점(alg:none·알고리즘 혼동), HS256 vs RS256 | |
