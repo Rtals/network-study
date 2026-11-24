@@ -26,6 +26,9 @@ export type GlyphKind =
   | 'seal'
   | 'phone'
   | 'clock'
+  | 'drawer'
+  | 'chip'
+  | 'cookie'
 
 const f = (n: number) => n.toFixed(1)
 const FILL = { fill: '#ffffff', fillOpacity: 0.55 }
@@ -198,6 +201,27 @@ const SHAPES: Record<GlyphKind, ReactNode> = {
     <>
       <circle cx={0} cy={0} r={13} {...FILL} />
       <path d="M0 -7v7l5 3.5" strokeWidth={2.6} />
+    </>
+  ),
+  drawer: (
+    <>
+      <rect x={-14} y={-13} width={28} height={12} rx={2.5} {...FILL} />
+      <rect x={-14} y={1} width={28} height={12} rx={2.5} {...FILL} />
+      <path d="M-4 -7h8M-4 7h8" strokeWidth={2.4} />
+    </>
+  ),
+  chip: (
+    <>
+      <rect x={-9} y={-9} width={18} height={18} rx={3} {...FILL} />
+      <path d="M-4 -9v-5M4 -9v-5M-4 9v5M4 9v5M-9 -4h-5M-9 4h-5M9 -4h5M9 4h5" strokeWidth={2.2} />
+    </>
+  ),
+  cookie: (
+    <>
+      <path d="M13 1A13 13 0 1 1 -1 -12.5a4.5 4.5 0 0 0 6.5 5.5a4.5 4.5 0 0 0 7.5 8z" {...FILL} />
+      <circle cx={-5} cy={-3} r={1.8} fill={INK} stroke="none" />
+      <circle cx={3} cy={5} r={1.8} fill={INK} stroke="none" />
+      <circle cx={-4} cy={7} r={1.6} fill={INK} stroke="none" />
     </>
   ),
   person: (

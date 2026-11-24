@@ -217,6 +217,22 @@ describe('6-16 Access + Refresh Token 장면', () => {
   })
 })
 
+describe('6-17 토큰 저장 위치 장면', () => {
+  it('XSS는 JS로 읽히는 두 저장소에서만 토큰을 빼 가고, CSRF는 쿠키만 자동으로 붙는다', async () => {
+    const { tokenStorage } = await import('../../content/w6/token-storage')
+    const flows = (i: number) => (tokenStorage.phases[i].state as TopologyState).beats.flatMap((b) => (b.kind === 'flow' ? [b] : []))
+    const stolen = flows(1).filter((f) => f.path.at(-1) === 'attacker').map((f) => f.path[0])
+    expect(stolen).toEqual(['local', 'session'])
+    const attached = flows(2).filter((f) => f.path.at(-1) === 'page' && f.path[0] !== 'attacker').map((f) => f.path[0])
+    expect(attached).toEqual(['cookie'])
+    // 권장 조합: Access는 메모리로, Refresh는 쿠키로
+    expect(flows(3).find((f) => f.id === 'at')?.path.at(-1)).toBe('memory')
+    expect(flows(3).find((f) => f.id === 'rt')?.path.at(-1)).toBe('cookie')
+    // HttpOnly의 한계: 쿠키를 읽지 못해도 요청 결과는 공격자에게 간다
+    expect(flows(4).at(-1)?.path).toEqual(['page', 'attacker'])
+  })
+})
+
 describe('6-15 JWT 검증 순서 장면', () => {
   it('Phase마다 멈추는 검문소가 jwt.ts의 verifyPipeline 결과와 같다', async () => {
     const { jwtVerify } = await import('../../content/w6/jwt-verify')

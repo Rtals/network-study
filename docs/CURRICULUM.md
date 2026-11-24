@@ -158,7 +158,7 @@ Phase 목록은 초안이다. 구현 전에 해당 페이지를 다시 읽고 Ph
 | 6-14 ★ | 토큰 방식과 JWT 해부 | 25–27, 29 | topology 💡 | 세션 vs 토큰 → 세 덩어리 → Claim(sub·exp…) → 누구나 읽음(Base64URL) → 변조하면 401 → 넣으면 안 되는 것 | 🧪 실제 HS256 토큰 해부 · payload 변조·만료 → 검증 결과 · QC Q7 |
 | 6-15 | 서버의 JWT 검증 순서 | 28 | topology | 검증 순서(검문소 5개 → 인가) → 1·2 형식·alg(none 거부) → 3 서명(변조) → 4 시간(만료) → 5 발급자·대상 → HS256 vs RS256 → 검증을 건너뛰면 | 🧪 검증기: 토큰 5종 · decode만 하는 서버 |
 | 6-16 ★ | Access + Refresh Token | 30–31 | topology 💡 | 두 토큰(AT 15분 · RT 14일) → Access로 호출 → 만료 → 401 → Refresh로 재발급(Rotation) → 도난 탐지(폐기된 RT 재사용) → 짧게·길게(로그아웃 → 15분 안에 끊김) · 쉬운 설명: 놀이공원 이용권 | 🧪 시간 슬라이더: Access 수명 · 로그아웃 시각 · QC Q8 |
-| 6-17 | 토큰 저장 위치와 Session vs JWT | 32–33 | compare | 저장 위치 4곳의 XSS·CSRF 트레이드오프 → 권장 조합(SPA) → Session vs JWT 선택 기준 | |
+| 6-17 | 토큰 저장 위치와 Session vs JWT | 32–33 | topology | 저장 위치 4곳 → XSS 시(JS로 읽히면 탈취) → CSRF 시(쿠키만 자동 첨부) → 권장 조합(SPA: AT 메모리 · RT HttpOnly 쿠키) → HttpOnly의 한계(그 페이지에서 요청은 가능) → 상태·차단 → 확장·크기 → 선택 기준 · 쉬운 설명: 열쇠 보관 비유(보충) | |
 
 **D. 권한과 공격**
 
