@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { AuthSandbox } from './auth/AuthSandbox'
+import { CookieSandbox } from './cookie/CookieSandbox'
 import { EnvelopeSandbox } from './envelope/EnvelopeSandbox'
 import { HandshakeSandbox } from './handshake/HandshakeSandbox'
 import { HashSandbox } from './hash/HashSandbox'
@@ -14,4 +15,5 @@ export const sandboxRegistry: Record<string, ComponentType> = {
   'w6/authn-authz': AuthSandbox,
   'w6/mfa-otp': TotpSandbox,
   'w6/password-storage': PasswordSandbox,
+  'w6/cookie-attributes': CookieSandbox,
 }

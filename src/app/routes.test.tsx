@@ -362,6 +362,21 @@ describe('6-12 Cookie와 Session', () => {
   })
 })
 
+describe('6-13 Cookie 보안 속성', () => {
+  it('직접 해보기: 속성이 모두 꺼져 있으면 XSS가 성공, HttpOnly를 켜면 막힌다', () => {
+    renderAt('/w6/cookie-attributes/1')
+    fireEvent.click(screen.getByRole('button', { name: '직접 해보기' }))
+    const log = () => screen.getByRole('contentinfo', { name: '이벤트 로그' }).textContent
+    expect(screen.getByText(/SameSite=None인데 Secure가 없다/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Secure' }))
+    expect(log()).toContain('XSS 쿠키 탈취: 성공')
+    fireEvent.click(screen.getByRole('button', { name: 'HttpOnly' }))
+    expect(log()).toContain('XSS 쿠키 탈취: 막힘')
+    fireEvent.click(screen.getByRole('button', { name: '권장 조합으로' }))
+    expect(log()).toContain('CSRF 위조 POST: 막힘')
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')
