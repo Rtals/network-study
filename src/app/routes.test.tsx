@@ -391,6 +391,20 @@ describe('6-14 JWT 해부', () => {
   })
 })
 
+describe('6-15 JWT 검증 순서', () => {
+  it('검증기: 토큰마다 멈추는 검문소가 다르고, decode만 하면 변조 토큰도 통과한다', async () => {
+    renderAt('/w6/jwt-verify/1')
+    fireEvent.click(screen.getByRole('button', { name: '직접 해보기' }))
+    expect(await screen.findByText('모든 검문소 통과 → 인가로')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'alg: none 토큰' }))
+    expect(await screen.findByText('2. 알고리즘에서 멈춤 → 401')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'role 변조 토큰' }))
+    expect(await screen.findByText('3. 서명에서 멈춤 → 401')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /decode만 하는 서버/ }))
+    expect(await screen.findByText(/검증 없이 통과 → 위험!/)).toBeInTheDocument()
+  })
+})
+
 describe('3-4 직접 해보기', () => {
   it('SYN 손실을 켜면 이벤트 로그에 재전송이 기록된다', () => {
     renderAt('/w3/handshake/1')

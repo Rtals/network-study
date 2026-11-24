@@ -132,9 +132,17 @@ export function FloorRipple({ x, y, color, delay = 0 }: { x: number; y: number; 
       strokeWidth={2.6}
       pointerEvents="none"
       style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
+      opacity={0}
       initial={{ scale: 0.95, opacity: 0 }}
-      animate={{ scale: [0.95, 1.7], opacity: [0.9, 0] }}
-      transition={{ duration: 1.1, ease: EASE, delay }}
+      // 첫 키프레임은 반드시 '안 보임'이어야 한다: delay 동안 첫 값이 미리 적용되기 때문에
+      // (예전에는 0.9로 시작해서 알약이 뜨기 전부터 원이 바닥에 그려져 있었다)
+      // 크기와 불투명도는 시간표를 따로 둔다: 크기는 처음부터 쉬지 않고 퍼지고(멈춤 없음),
+      // 불투명도만 처음 10% 동안 0 → 0.9로 올라왔다가 사라진다
+      animate={{ scale: [0.95, 1.7], opacity: [0, 0.9, 0] }}
+      transition={{
+        scale: { duration: 1.2, ease: EASE, delay },
+        opacity: { duration: 1.2, times: [0, 0.1, 1], ease: ['linear', 'easeOut'], delay },
+      }}
     />
   )
 }

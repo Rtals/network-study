@@ -18,6 +18,7 @@ export type TopoNodeKind =
   | 'inherence'
   | 'phone'
   | 'combo'
+  | 'clock'
   | 'server'
   | 'auth'
   | 'db'

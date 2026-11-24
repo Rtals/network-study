@@ -70,3 +70,87 @@ export function expToKst(exp: number): string {
   const p = (n: number) => String(n).padStart(2, '0')
   return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())} (KST)`
 }
+
+// ───────────────────────── 6-15 서버의 JWT 검증 순서 (p.28) ─────────────────────────
+
+/** 검문소 순서: 1 형식 → 2 알고리즘 → 3 서명 → 4 시간 → 5 발급자·대상 (그다음 6 인가) */
+export const VERIFY_STAGES = ['format', 'alg', 'signature', 'time', 'issuer'] as const
+export type VerifyStage = (typeof VERIFY_STAGES)[number]
+
+export const STAGE_LABEL: Record<VerifyStage, string> = {
+  format: '1. 형식',
+  alg: '2. 알고리즘',
+  signature: '3. 서명',
+  time: '4. 시간',
+  issuer: '5. 발급자·대상',
+}
+
+/** 이 API가 기대하는 발급자·대상 (p.28 코드 예시) */
+export const EXPECTED_ISS = 'auth.inu.ac.kr'
+export const EXPECTED_AUD = 'grade-api'
+/** 검증기의 "지금" 시각: 예시 토큰 만료 10분 전 */
+export const VERIFY_NOW = LECTURE_PAYLOAD.exp - 600
+
+export type PipelineResult = {
+  /** 멈춘 검문소, 모두 통과하면 'pass' */
+  stop: VerifyStage | 'pass'
+  reason: string
+  payload?: Record<string, unknown>
+}
+
+export type PipelineOptions = {
+  now?: number
+  secret?: string
+  algorithms?: string[]
+  iss?: string
+  aud?: string
+  /** 검증 없이 decode만 하는 (잘못된) 서버 */
+  decodeOnly?: boolean
+}
+
+/** 서버의 검증 순서대로 검사하고, 처음 실패한 곳에서 멈춘다 */
+export async function verifyPipeline(token: string, o: PipelineOptions = {}): Promise<PipelineResult> {
+  const { now = VERIFY_NOW, secret = DEMO_SECRET, algorithms = ['HS256'], iss = EXPECTED_ISS, aud = EXPECTED_AUD } = o
+  const parts = token.split('.')
+  let header: Record<string, unknown>
+  let payload: Record<string, unknown>
+  try {
+    if (parts.length !== 3) throw new Error()
+    header = JSON.parse(decodePart(parts[0]))
+    payload = JSON.parse(decodePart(parts[1]))
+  } catch {
+    return { stop: 'format', reason: '세 덩어리가 아니거나 Base64URL·JSON으로 안 풀림' }
+  }
+  if (o.decodeOnly) return { stop: 'pass', reason: 'decode만 함 → 검증 없이 통과', payload }
+  if (typeof header.alg !== 'string' || !algorithms.includes(header.alg)) {
+    return { stop: 'alg', reason: `alg: ${String(header.alg)} → ${algorithms.join('·')}만 허용`, payload }
+  }
+  if ((await hmac(secret, `${parts[0]}.${parts[1]}`)) !== parts[2]) return { stop: 'signature', reason: '서버 키로 다시 서명 → 불일치', payload }
+  if (typeof payload.exp === 'number' && payload.exp <= now) return { stop: 'time', reason: 'exp 지남 → token expired', payload }
+  if (typeof payload.nbf === 'number' && payload.nbf > now) return { stop: 'time', reason: 'nbf 전 → 아직 못 씀', payload }
+  if (payload.iss !== iss) return { stop: 'issuer', reason: `iss: ${String(payload.iss)} → 우리 인증 서버 아님`, payload }
+  if (payload.aud !== aud) return { stop: 'issuer', reason: `aud: ${String(payload.aud)} → 이 API용 아님`, payload }
+  return { stop: 'pass', reason: '모든 검증 통과', payload }
+}
+
+const BASE_CLAIMS = { ...LECTURE_PAYLOAD, iss: EXPECTED_ISS, aud: EXPECTED_AUD }
+
+/** 검증기 샘플 토큰 다섯 가지 */
+export const SAMPLE_TOKENS = {
+  valid: { title: '정상 토큰', header: LECTURE_HEADER, payload: BASE_CLAIMS },
+  none: { title: 'alg: none 토큰', header: { alg: 'none', typ: 'JWT' }, payload: BASE_CLAIMS, unsigned: true },
+  forged: { title: 'role 변조 토큰', header: LECTURE_HEADER, payload: { ...BASE_CLAIMS, role: 'professor' }, signedAs: BASE_CLAIMS },
+  expired: { title: '만료된 토큰', header: LECTURE_HEADER, payload: { ...BASE_CLAIMS, exp: VERIFY_NOW - 60 } },
+  otherAud: { title: '다른 서비스용 토큰', header: LECTURE_HEADER, payload: { ...BASE_CLAIMS, aud: 'chat-api' } },
+} as const
+export type SampleId = keyof typeof SAMPLE_TOKENS
+
+/** 샘플 토큰 만들기: 변조 토큰은 원래 내용으로 서명한 뒤 payload만 바꾸고, none 토큰은 서명이 없다 */
+export async function buildSample(id: SampleId, secret = DEMO_SECRET): Promise<string> {
+  const s = SAMPLE_TOKENS[id]
+  const h = encodePart(s.header)
+  if ('unsigned' in s) return `${h}.${encodePart(s.payload)}.`
+  const signedPayload = 'signedAs' in s ? s.signedAs : s.payload
+  const sig = await hmac(secret, `${h}.${encodePart(signedPayload)}`)
+  return `${h}.${encodePart(s.payload)}.${sig}`
+}

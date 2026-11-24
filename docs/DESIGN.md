@@ -192,7 +192,7 @@ export type Quiz = {
 - **설명 읽을 시간**: 설명 칩이 붙은 메시지가 도착하면 칩이 나타난 뒤 `READ_MS`(2.2초) 동안 기다렸다가 다음 메시지를 보낸다 (`timeline.ts`). 마지막 설명도 이만큼 읽은 뒤에 자동재생이 넘어간다.
 - **topology 엔진**(`src/scenes/topology/`, 6-1부터): 레인 위 노드(블록 + 아이콘 + 이름), 연결선(위험 경로는 빨간 점선), 여러 노드를 거쳐 가는 패킷(블록에서 나올 때 0.18초 동안 선명해지고 들어갈 때 0.18초 동안 흐려진다. 출발·중간·끝 블록 모두 같은 규칙, `FADE_MS`), 노드에 붙는 알약(공격 빨강·용어 연보라·빠진 장치 호박·정보 종이색은 블록 위에 쌓고, 방어 연두는 블록 오른쪽 아래에 쌓음), 바닥 점선 구역(레인 위 이웃한 노드 여러 개를 감쌀 수 있음). 재생은 비트(flow · tags · zone) 순서이고 sequence와 같은 규칙(미리 보여 주지 않음, 설명 칩 뒤 읽을 시간, 다시 보기)을 따른다. Phase가 바뀌어도 같은 노드는 그대로, 새 노드만 내려앉는다.
 - **패킷 속도**: 도착하면 블록 안으로 사라지는 topology 장면은 공통 속도(`iso/constants.ts`의 `FLOW_SPEED`, 기준: 6-4 1단계 지문의 한 칸 ≈ 0.65초). 이동 시간 = 화면 거리 ÷ 속도라서 화면 위 속도는 어디서나 같다. 도착 뒤에도 패킷이 남아 있는 sequence 장면(3-4, 6-6)은 예외로 고정 1초(`TRAVEL_MS`). 블록 안을 지나는 구간은 `HIDDEN_HOP_PX` 거리로 친다.
-- 블록 아이콘(`iso/glyphs.tsx`): monitor · server · browser · wifi · globe · shield · db · spy · door · idcard · card · elevator · clipboard · person · hash · fingerprint · key · stamp · certificate · seal · phone. 아무 아이콘이나 얹는 블록은 `IsoNode`.
+- 블록 아이콘(`iso/glyphs.tsx`): monitor · server · browser · wifi · globe · shield · db · spy · door · idcard · card · elevator · clipboard · person · hash · fingerprint · key · stamp · certificate · seal · phone · clock. 아무 아이콘이나 얹는 블록은 `IsoNode`.
 - 자동재생은 장면이 끝난 뒤 다음 Phase로 넘어간다(`scenes/duration.ts`). Phase 사이 1.5초 쉼.
 - 진행 바의 ↻(**이 단계 다시 보기**)는 Phase를 그대로 두고 지금 Phase의 애니메이션만 처음부터 다시 재생한다 (`replayCount` → 장면의 `replay`).
 

@@ -12,6 +12,10 @@ import {
   LECTURE_PAYLOAD_B64,
   signHS256,
   verifyHS256,
+  buildSample,
+  verifyPipeline,
+  VERIFY_STAGES,
+  type SampleId,
 } from './jwt'
 
 const NOW = 1794380400 - 600 // 만료 10분 전
@@ -47,5 +51,31 @@ describe('JWT (6-14)', () => {
   it('다른 비밀키로 서명한 토큰은 통과하지 못한다', async () => {
     const other = await signHS256(LECTURE_PAYLOAD, 'other-secret')
     expect(await verifyHS256(other, NOW)).toMatchObject({ ok: false, reason: 'invalid token' })
+  })
+})
+
+describe('JWT 검증 순서 (6-15, p.28)', () => {
+  const stopOf = async (id: SampleId, decodeOnly = false) => (await verifyPipeline(await buildSample(id), { decodeOnly })).stop
+
+  it('샘플 토큰마다 정확히 한 검문소에서 멈춘다', async () => {
+    expect(await stopOf('valid')).toBe('pass')
+    expect(await stopOf('none')).toBe('alg')
+    expect(await stopOf('forged')).toBe('signature')
+    expect(await stopOf('expired')).toBe('time')
+    expect(await stopOf('otherAud')).toBe('issuer')
+  })
+
+  it('형식이 틀리면 1번에서 멈춘다', async () => {
+    expect((await verifyPipeline('abc.def')).stop).toBe('format')
+  })
+
+  it('decode만 하는 서버는 변조 토큰도 통과시킨다 (role=professor를 그대로 믿음)', async () => {
+    const r = await verifyPipeline(await buildSample('forged'), { decodeOnly: true })
+    expect(r.stop).toBe('pass')
+    expect(r.payload?.role).toBe('professor')
+  })
+
+  it('검문소는 5개, 순서대로', () => {
+    expect(VERIFY_STAGES).toEqual(['format', 'alg', 'signature', 'time', 'issuer'])
   })
 })

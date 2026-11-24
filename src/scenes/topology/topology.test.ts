@@ -204,3 +204,20 @@ describe('6-8 인증과 인가 장면', () => {
     expect(flows(0)[0]).toEqual(['client', 'authn', 'authz', 'handler'])
   })
 })
+
+describe('6-15 JWT 검증 순서 장면', () => {
+  it('Phase마다 멈추는 검문소가 jwt.ts의 verifyPipeline 결과와 같다', async () => {
+    const { jwtVerify } = await import('../../content/w6/jwt-verify')
+    const { buildSample, verifyPipeline } = await import('../../lib/jwt')
+    const stopOf = (i: number) => {
+      const st = jwtVerify.phases[i].state as TopologyState
+      const first = st.beats.find((b) => b.kind === 'flow')
+      return first?.kind === 'flow' ? first.path.at(-1) : undefined
+    }
+    expect(stopOf(0)).toBe('handler')
+    expect(stopOf(1)).toBe((await verifyPipeline(await buildSample('none'))).stop)
+    expect(stopOf(2)).toBe((await verifyPipeline(await buildSample('forged'))).stop)
+    expect(stopOf(3)).toBe((await verifyPipeline(await buildSample('expired'))).stop)
+    expect(stopOf(4)).toBe((await verifyPipeline(await buildSample('otherAud'))).stop)
+  })
+})

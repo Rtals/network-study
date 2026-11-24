@@ -24,6 +24,7 @@ export const NODE_STYLE: Record<TopoNodeKind, { glyph: GlyphKind; color: BlockCo
   inherence: { glyph: 'fingerprint', color: 'green', h: 60 },
   phone: { glyph: 'phone', color: 'violet', h: 58 },
   combo: { glyph: 'shield', color: 'slab', h: 52 },
+  clock: { glyph: 'clock', color: 'yellow', h: 60 },
   server: { glyph: 'server', color: 'blue', h: 70 },
   auth: { glyph: 'shield', color: 'orange', h: 62 },
   db: { glyph: 'db', color: 'green', h: 70 },
